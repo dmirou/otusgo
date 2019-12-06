@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/beevik/ntp"
 	"os"
-	"time"
+
+	ntpClient "github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client"
 )
 
 func main() {
 	const host = "0.beevik-ntp.pool.ntp.org"
-	response, err := ntp.Query(host)
+	client := ntpClient.NewClient(host)
+	timeNow, err := client.GetDate()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "can't get time from %s, error: %s\n", host, err)
 		os.Exit(1)
 	}
-	time := time.Now().Add(response.ClockOffset)
-	fmt.Printf("time now is %s\n", time)
+	fmt.Printf("time now is %s\n", timeNow)
 }
