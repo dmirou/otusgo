@@ -12,9 +12,9 @@ func TestNewClient(t *testing.T) {
 	assert.NotNil(t, timeClient, "client should be not nil")
 }
 
-func TestGetDateInvalidHost(t *testing.T) {
+func TestGetTimeWithInvalidHost(t *testing.T) {
 	const invalidHost = "invalid-host"
 	timeClient := NewClient(invalidHost)
-	_, err := timeClient.GetDate()
-	assert.NotNil(t, err, "GetDate should return error")
+	_, err := timeClient.GetTime()
+	assert.NotNil(t, err, "GetTime should return error")
 }

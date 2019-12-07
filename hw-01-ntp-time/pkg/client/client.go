@@ -15,11 +15,10 @@ func NewClient(host string) *Client {
 	}
 }
 
-func (c *Client) GetDate() (*time.Time, error) {
-	response, err := ntp.Query(c.Host)
+func (c *Client) GetTime() (*time.Time, error) {
+	time, err := ntp.Time(c.Host)
 	if err != nil {
 		return nil, err
 	}
-	result := time.Now().Add(response.ClockOffset)
-	return &result, nil
+	return &time, nil
 }
