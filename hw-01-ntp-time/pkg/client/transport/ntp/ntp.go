@@ -5,17 +5,17 @@ import (
 	"time"
 )
 
-type Client struct {
+type Transport struct {
 	Host string
 }
 
-func NewClient(host string) Client {
-	return Client{
+func NewTransport(host string) Transport {
+	return Transport{
 		Host: host,
 	}
 }
 
-func (c Client) GetTime() (time.Time, error) {
+func (c Transport) GetTime() (time.Time, error) {
 	result, err := ntp.Time(c.Host)
 	if err != nil {
 		return time.Time{}, err
