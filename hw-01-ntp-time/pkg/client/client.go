@@ -1,25 +1,21 @@
 package client
 
 import (
-	"github.com/beevik/ntp"
 	"time"
+
+	client "github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client/transport"
 )
 
 type Client struct {
-	Host string
+	transport client.Transport
 }
 
-func NewClient(host string) *Client {
-	return &Client{
-		Host: host,
+func NewClient(transport client.Transport) Client {
+	return Client{
+		transport: transport,
 	}
 }
 
-func (c *Client) GetDate() (*time.Time, error) {
-	response, err := ntp.Query(c.Host)
-	if err != nil {
-		return nil, err
-	}
-	result := time.Now().Add(response.ClockOffset)
-	return &result, nil
+func (c Client) GetTime() (time.Time, error) {
+	return c.transport.GetTime()
 }

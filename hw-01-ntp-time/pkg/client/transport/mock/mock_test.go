@@ -1,20 +1,18 @@
-package client
+package mock
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
-	"github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client/transport/mock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetTimeSuccess(t *testing.T) {
 	expectedResult := time.Now()
 	var expectedErr error = nil
-	mockTransport := mock.NewTransport(expectedResult, expectedErr)
-	client := NewClient(mockTransport)
-	result, err := client.GetTime()
+	mockTransport := NewTransport(expectedResult, expectedErr)
+	result, err := mockTransport.GetTime()
 	assert.EqualValuesf(t, expectedResult, result,
 		"GetTime results are different\nexpected: %s, actual: %s", expectedResult, result)
 	assert.EqualValuesf(t, expectedErr, err,
@@ -24,9 +22,8 @@ func TestGetTimeSuccess(t *testing.T) {
 func TestGetTimeWithError(t *testing.T) {
 	expectedResult := time.Time{}
 	expectedErr := errors.New("test error")
-	mockTransport := mock.NewTransport(expectedResult, expectedErr)
-	client := NewClient(mockTransport)
-	result, err := client.GetTime()
+	mockTransport := NewTransport(expectedResult, expectedErr)
+	result, err := mockTransport.GetTime()
 	assert.EqualValuesf(t, expectedResult, result,
 		"GetTime results are different\nexpected: %s, actual: %s", expectedResult, result)
 	assert.EqualValuesf(t, expectedErr, err,
