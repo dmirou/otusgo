@@ -3,7 +3,6 @@ package strings
 import (
 	"testing"
 
-	"github.com/dmirou/otusgo/hw03unpackstring/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +30,7 @@ func TestUnpack(t *testing.T) {
 		},
 		{
 			In:  "45",
-			Out: CaseOut{Str: "", Err: &errors.InvalidArgError{Value: "45"}},
+			Out: CaseOut{Str: "", Err: &InvalidArgError{Value: "45"}},
 		},
 		{
 			In:  "",

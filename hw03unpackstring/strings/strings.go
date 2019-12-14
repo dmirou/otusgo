@@ -4,8 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-
-	"github.com/dmirou/otusgo/hw03unpackstring/pkg/errors"
 )
 
 // Unpack replace sequence {char}{number} on sequence {char}{char}... with {number} length
@@ -22,7 +20,7 @@ func Unpack(s string) (string, error) {
 			continue
 		}
 		if prevNumber || prev == 0 {
-			return "", &errors.InvalidArgError{Value: s}
+			return "", &InvalidArgError{Value: s}
 		}
 		count, _ := strconv.Atoi(string(r))
 		for i := 0; i < count-1; i++ {
