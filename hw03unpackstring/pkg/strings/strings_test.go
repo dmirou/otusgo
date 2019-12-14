@@ -39,7 +39,9 @@ func TestUnpack(t *testing.T) {
 
 	for _, testCase := range cases {
 		outStr, err := Unpack(testCase.In)
-		assert.EqualValues(t, testCase.Out.Str, outStr, "out strings are different")
-		assert.EqualValues(t, testCase.Out.Err, err, "out errors are different")
+		assert.EqualValuesf(t, testCase.Out.Str, outStr,
+			"input: %s, out strings are different", testCase.In)
+		assert.EqualValues(t, testCase.Out.Err, err,
+			"input: %s, out errors are different", testCase.In)
 	}
 }
