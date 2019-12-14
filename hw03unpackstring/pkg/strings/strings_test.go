@@ -7,11 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Case defines a test case
 type Case struct {
 	In  string
 	Out CaseOut
 }
 
+// CaseOut defines result returned by a function to be tested
 type CaseOut struct {
 	Str string
 	Err error
