@@ -3,7 +3,7 @@ package client
 import (
 	"time"
 
-	client "github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client/transport"
+	client "github.com/dmirou/otusgo/hw01ntptime/pkg/client/transport"
 )
 
 type Client struct {

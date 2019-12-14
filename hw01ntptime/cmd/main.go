@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client"
-	"github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client/transport/ntp"
+	"github.com/dmirou/otusgo/hw01ntptime/pkg/client"
+	"github.com/dmirou/otusgo/hw01ntptime/pkg/client/transport/ntp"
 )
 
 func main() {

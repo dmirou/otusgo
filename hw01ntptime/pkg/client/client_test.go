@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dmirou/otus-go/hw-01-ntp-time/pkg/client/transport/mock"
+	"github.com/dmirou/otusgo/hw01ntptime/pkg/client/transport/mock"
 )
 
 func TestGetTimeSuccess(t *testing.T) {

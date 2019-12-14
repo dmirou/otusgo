@@ -1,4 +1,4 @@
-PROJECT = github.com/dmirou/otus-go/hw-01-ntp-time
+PROJECT = github.com/dmirou/otusgo/hw01ntptime
 HAS_LINT := $(shell command -v golangci-lint;)
 GO_PACKAGES=$(shell go list $(PROJECT)/pkg/...)
 

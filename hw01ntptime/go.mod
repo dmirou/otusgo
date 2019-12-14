@@ -1,4 +1,4 @@
-module github.com/dmirou/otus-go/hw-01-ntp-time
+module github.com/dmirou/otusgo/hw01ntptime
 
 go 1.13
 
