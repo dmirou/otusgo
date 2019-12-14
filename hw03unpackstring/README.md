@@ -21,3 +21,17 @@
 Код должен проходить проверки go vet и golint
 У преподавателя должна быть возможность скачать и проверить пакет с помощью go get / go test
 Задание (*) НЕ влияет на баллы, оно дано просто для развития навыков. 
+
+## Usage
+
+To update dependencies, run tests and lint:
+```bash
+make
+```
+
+### Other make commands
+
+* `bootstrap` - download golangci-lint, if it is not exists
+* `lint` - run golangci linter
+* `test` - run all tests
+* `vendor` - actualize and update dependencies
