@@ -13,19 +13,20 @@ func Unpack(s string) (string, error) {
 	var prev rune
 	var prevNumber = false
 	for _, r := range s {
-		if !unicode.IsNumber(r) {
+		switch true {
+		case !unicode.IsNumber(r):
 			result.WriteRune(r)
 			prev = r
 			prevNumber = false
 			continue
-		}
-		if prevNumber || prev == 0 {
+		case prevNumber || prev == 0:
 			return "", &InvalidArgError{Value: s}
 		}
-		count, _ := strconv.Atoi(string(r))
-		for i := 0; i < count-1; i++ {
-			result.WriteRune(prev)
+		count, err := strconv.Atoi(string(r))
+		if err != nil {
+			return "", &InvalidArgError{Value: s}
 		}
+		result.WriteString(strings.Repeat(string(prev), count-1))
 	}
 	return result.String(), nil
 }
