@@ -65,13 +65,13 @@ linters:
     - unparam
     - unused
     - varcheck
+    - gochecknoglobals
+    - maligned
+    - prealloc
 
   # don't enable:
-  # - gochecknoglobals
   # - gocognit
   # - godox
-  # - maligned
-  # - prealloc
 
 issues:
   exclude:
