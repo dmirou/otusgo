@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// GenerateSliceWithLength generates a new random slice with the length between min and max
+// GenerateSliceWithLength generates a new random slice with the length between min and max.
 func GenerateSliceWithLength(min, max int) ([]int, error) {
 	length, err := GenerateInt(min, max)
 	if err != nil {
@@ -15,7 +15,7 @@ func GenerateSliceWithLength(min, max int) ([]int, error) {
 	return GenerateSlice(length)
 }
 
-// GenerateSlice creates a new slice with n random integers
+// GenerateSlice creates a new slice with n random integers.
 func GenerateSlice(n int) ([]int, error) {
 	if n <= 0 {
 		return nil, errors.New("slice length should be greater or equal than one")
@@ -27,8 +27,8 @@ func GenerateSlice(n int) ([]int, error) {
 	return result, nil
 }
 
-// GenerateInt returns a random integer between min and max [min, max]
-// min and max are included to the possible result
+// GenerateInt returns a random integer between min and max [min, max].
+// min and max are included to the possible result.
 func GenerateInt(min, max int) (int, error) {
 	if min > max {
 		return 0, errors.New("min should be bigger or equal than max")

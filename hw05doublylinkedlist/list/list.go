@@ -1,57 +1,57 @@
 package list
 
-// Item is the item of the doubly linked list
+// Item is the item of the doubly linked list.
 type Item struct {
 	value interface{}
 	next  *Item
 	prev  *Item
 }
 
-// Value returns a value of the item
+// Value returns a value of the item.
 func (i Item) Value() interface{} {
 	return i.value
 }
 
-// newItem creates a new item with the value
+// newItem creates a new item with the value.
 func newItem(value interface{}) *Item {
 	newItem := new(Item)
 	newItem.value = value
 	return newItem
 }
 
-// Next returns a next item connected to the current item in the list
+// Next returns a next item connected to the current item in the list.
 func (i Item) Next() *Item {
 	return i.next
 }
 
-// Prev returns a previous item connected to the current item in the list
+// Prev returns a previous item connected to the current item in the list.
 func (i Item) Prev() *Item {
 	return i.prev
 }
 
-// List describes a doubly linked list
+// List describes a doubly linked list.
 type List struct {
 	first *Item
 	last  *Item
 	len   int
 }
 
-// Len returns a count of elements in the list
+// Len returns a count of elements in the list.
 func (l List) Len() int {
 	return l.len
 }
 
-// First returns a first item of the list
+// First returns a first item of the list.
 func (l List) First() *Item {
 	return l.first
 }
 
-// Last returns a last item of the list
+// Last returns a last item of the list.
 func (l List) Last() *Item {
 	return l.last
 }
 
-// PushFront adds a value to the beginning of the list
+// PushFront adds a value to the beginning of the list.
 func (l *List) PushFront(value interface{}) {
 	newItem := newItem(value)
 	if l.first == nil {
@@ -66,7 +66,7 @@ func (l *List) PushFront(value interface{}) {
 	l.len++
 }
 
-// PushBack adds a value to the end of the list
+// PushBack adds a value to the end of the list.
 func (l *List) PushBack(value interface{}) {
 	newItem := newItem(value)
 	if l.first == nil {
@@ -81,7 +81,7 @@ func (l *List) PushBack(value interface{}) {
 	l.len++
 }
 
-// Remove removes an item from the list
+// Remove removes an item from the list.
 func (l *List) Remove(item Item) {
 	if item.Prev() == nil && item.Next() == nil {
 		l.first = nil

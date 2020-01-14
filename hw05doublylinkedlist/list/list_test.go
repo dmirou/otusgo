@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestItemValue checked that the Value method correctly returns an assigned item value
+// TestItemValue checked that the Value method correctly returns an assigned item value.
 func TestItemValue(t *testing.T) {
 	item := Item{}
 	item.value = rand.Int()
 	assert.Equalf(t, item.value, item.Value(), "Value was not received")
 }
 
-// TestItemNext checked that the Next method correctly returns an assigned next item
+// TestItemNext checked that the Next method correctly returns an assigned next item.
 func TestItemNext(t *testing.T) {
 	item := Item{}
 
@@ -30,7 +30,7 @@ func TestItemNext(t *testing.T) {
 	}
 }
 
-// TestItemPrev checked that the Prev method correctly returns an assigned previous item
+// TestItemPrev checked that the Prev method correctly returns an assigned previous item.
 func TestItemPrev(t *testing.T) {
 	item := Item{}
 
@@ -46,7 +46,7 @@ func TestItemPrev(t *testing.T) {
 	}
 }
 
-// TestListPushFront checks that values are added to the list via PushFront method
+// TestListPushFront checks that values are added to the list via PushFront method.
 func TestListPushFront(t *testing.T) {
 	var list = new(List)
 	var values, err = GenerateSliceWithLength(5, 10)
@@ -58,12 +58,12 @@ func TestListPushFront(t *testing.T) {
 	assert.Equalf(t, len(values), list.Len(), "Not all values were added to the list")
 }
 
-// TestListPushBack checks that values are added to the list via PushBack method
+// TestListPushBack checks that values are added to the list via PushBack method.
 func TestListPushBack(t *testing.T) {
 	generateRandomList(t)
 }
 
-// generateRandomList return a random list and it's values
+// generateRandomList return a random list and it's values.
 func generateRandomList(t *testing.T) (*List, []int) {
 	var list = new(List)
 	var values, err = GenerateSliceWithLength(5, 10)
@@ -76,13 +76,13 @@ func generateRandomList(t *testing.T) (*List, []int) {
 	return list, values
 }
 
-// RemoveTestCase describes input data for testing list.Remove method
+// RemoveTestCase describes input data for testing list.Remove method.
 type RemoveTestCase struct {
 	Values        []int
 	IndexToRemove int
 }
 
-// TestRemove checks that a list item is removed from the list
+// TestRemove checks that a list item is removed from the list.
 func TestRemove(t *testing.T) {
 	testCases := []RemoveTestCase{
 		{

@@ -6,14 +6,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// GenerateIntCase describes a test case for the GenerateInt method
+// GenerateIntCase describes a test case for the GenerateInt method.
 type GenerateIntCase struct {
 	Min            int
 	Max            int
 	PossibleValues []int
 }
 
-// TestGenerateInt checks that a generated number is in a correct range
+// TestGenerateInt checks that a generated number is in a correct range.
 func TestGenerateInt(t *testing.T) {
 	var testCases = []GenerateIntCase{
 		{
@@ -39,7 +39,7 @@ func TestGenerateInt(t *testing.T) {
 	}
 }
 
-// TestGenerateSlice checks that the method GenerateSlice generates slice with a specified length
+// TestGenerateSlice checks that the method GenerateSlice generates slice with a specified length.
 func TestGenerateSlice(t *testing.T) {
 	var lengths = []int{1, 2, 5, 10}
 	for _, length := range lengths {
