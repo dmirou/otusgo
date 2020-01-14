@@ -76,15 +76,6 @@ func generateRandomList(t *testing.T) (*List, []int) {
 	return list, values
 }
 
-// TestRemoveNil checks that the nil can't be removed from the list
-func TestRemoveNil(t *testing.T) {
-	list, _ := generateRandomList(t)
-
-	ok, err := list.Remove(nil)
-	assert.Falsef(t, ok, "Nil was removed from the list")
-	assert.NotNilf(t, err, "Nil was removed from the list without errors")
-}
-
 // RemoveTestCase describes input data for testing list.Remove method
 type RemoveTestCase struct {
 	Values        []int
@@ -99,12 +90,12 @@ func TestRemove(t *testing.T) {
 			IndexToRemove: 0,
 		},
 		{
-			Values:        []int{4, 2, 8, 1},
+			Values:        []int{4, 2, 8, 4, 1},
 			IndexToRemove: 0,
 		},
 		{
-			Values:        []int{4, 1, 2, 10},
-			IndexToRemove: 3,
+			Values:        []int{4, 1, 2, 10, 12, 4},
+			IndexToRemove: 5,
 		},
 		{
 			Values:        []int{4, 2, 8, 1},
@@ -121,19 +112,15 @@ func TestRemove(t *testing.T) {
 			list.PushBack(value)
 		}
 		var curItem = list.First()
-		var itemToRemove *Item
+		var itemToRemove Item
 		for i := 0; i < list.Len(); i++ {
 			if i == testCase.IndexToRemove {
-				itemToRemove = curItem
+				itemToRemove = *curItem
 				break
 			}
 			curItem = curItem.Next()
 		}
-		ok, err := list.Remove(itemToRemove)
-		assert.Truef(t, ok, "Item was not removed from the list: index %d, value %d",
-			testCase.IndexToRemove, itemToRemove.Value())
-		assert.Nilf(t, err, "Item was not removed from the list: index %d, value %d",
-			testCase.IndexToRemove, itemToRemove.Value())
+		list.Remove(itemToRemove)
 
 		expectedValues := append(testCase.Values[:testCase.IndexToRemove],
 			testCase.Values[testCase.IndexToRemove+1:]...)

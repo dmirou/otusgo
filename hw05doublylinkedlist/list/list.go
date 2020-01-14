@@ -1,7 +1,5 @@
 package list
 
-import "errors"
-
 // Item is the item of the doubly linked list
 type Item struct {
 	value interface{}
@@ -84,28 +82,24 @@ func (lst *List) PushBack(v interface{}) {
 }
 
 // Remove removes an item from the list
-func (lst *List) Remove(i *Item) (bool, error) {
-	if i == nil {
-		return false, errors.New("can't remove nil from the list")
-	}
+func (lst *List) Remove(i Item) {
 	if i.Prev() == nil && i.Next() == nil {
 		lst.first = nil
 		lst.last = nil
 		lst.len = 0
-		return true, nil
+		return
 	}
-	if lst.Last() == i {
+	if *lst.Last() == i {
 		lst.last = i.Prev()
 	}
 	if i.Prev() != nil {
 		i.Prev().next = i.Next()
 		lst.len--
-		return true, nil
+		return
 	}
-	if lst.First() == i {
+	if *lst.First() == i {
 		lst.first = i.Next()
 	}
 	i.Next().prev = i.Prev()
 	lst.len--
-	return true, nil
 }
