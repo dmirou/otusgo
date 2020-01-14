@@ -10,9 +10,8 @@ import (
 // TestItemValue checked that the Value method correctly returns an assigned item value
 func TestItemValue(t *testing.T) {
 	item := Item{}
-	value := rand.Int()
-	item.SetValue(value)
-	assert.Equalf(t, value, item.Value(), "Value was not assigned or was not received")
+	item.value = rand.Int()
+	assert.Equalf(t, item.value, item.Value(), "Value was not received")
 }
 
 // TestItemNext checked that the Next method correctly returns an assigned next item
@@ -26,8 +25,8 @@ func TestItemNext(t *testing.T) {
 	}
 
 	for _, next := range nexts {
-		item.SetNext(next)
-		assert.Equalf(t, next, item.Next(), "Next item was not assigned or was not received")
+		item.next = next
+		assert.Equalf(t, next, item.Next(), "Next item was not received")
 	}
 }
 
@@ -42,8 +41,8 @@ func TestItemPrev(t *testing.T) {
 	}
 
 	for _, prev := range prevs {
-		item.SetPrev(prev)
-		assert.Equalf(t, prev, item.Prev(), "Previous item was not assigned or was not received")
+		item.prev = prev
+		assert.Equalf(t, prev, item.Prev(), "Previous item was not received")
 	}
 }
 

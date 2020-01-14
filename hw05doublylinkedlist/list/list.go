@@ -9,36 +9,21 @@ type Item struct {
 	prev  *Item
 }
 
-// SetValue sets a value of the item
-func (itm *Item) SetValue(value interface{}) {
-	itm.value = value
-}
-
 // Value returns a value of the item
 func (itm Item) Value() interface{} {
 	return itm.value
 }
 
-// NewItem creates a new item with the value
-func NewItem(value interface{}) *Item {
+// newItem creates a new item with the value
+func newItem(value interface{}) *Item {
 	newItem := new(Item)
-	newItem.SetValue(value)
+	newItem.value = value
 	return newItem
-}
-
-// SetNext set a next item connected to the current item in the list
-func (itm *Item) SetNext(next *Item) {
-	itm.next = next
 }
 
 // Next returns a next item connected to the current item in the list
 func (itm Item) Next() *Item {
 	return itm.next
-}
-
-// SetPrev set a previous item connected to the current item in the list
-func (itm *Item) SetPrev(prev *Item) {
-	itm.prev = prev
 }
 
 // Prev returns a previous item connected to the current item in the list
@@ -70,30 +55,30 @@ func (lst List) Last() *Item {
 
 // PushFront adds a value to the beginning of the list
 func (lst *List) PushFront(v interface{}) {
-	newItem := NewItem(v)
+	newItem := newItem(v)
 	if lst.first == nil {
 		lst.first = newItem
 		lst.last = newItem
 		lst.len++
 		return
 	}
-	lst.first.SetPrev(newItem)
-	newItem.SetNext(lst.first)
+	lst.first.prev = newItem
+	newItem.next = lst.first
 	lst.first = newItem
 	lst.len++
 }
 
 // PushBack adds a value to the end of the list
 func (lst *List) PushBack(v interface{}) {
-	newItem := NewItem(v)
+	newItem := newItem(v)
 	if lst.first == nil {
 		lst.first = newItem
 		lst.last = newItem
 		lst.len++
 		return
 	}
-	lst.last.SetNext(newItem)
-	newItem.SetPrev(lst.last)
+	lst.last.next = newItem
+	newItem.prev = lst.last
 	lst.last = newItem
 	lst.len++
 }
@@ -113,14 +98,14 @@ func (lst *List) Remove(i *Item) (bool, error) {
 		lst.last = i.Prev()
 	}
 	if i.Prev() != nil {
-		i.Prev().SetNext(i.Next())
+		i.Prev().next = i.Next()
 		lst.len--
 		return true, nil
 	}
 	if lst.First() == i {
 		lst.first = i.Next()
 	}
-	i.Next().SetPrev(i.Prev())
+	i.Next().prev = i.Prev()
 	lst.len--
 	return true, nil
 }
