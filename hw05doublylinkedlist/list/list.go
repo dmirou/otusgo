@@ -8,8 +8,8 @@ type Item struct {
 }
 
 // Value returns a value of the item
-func (itm Item) Value() interface{} {
-	return itm.value
+func (i Item) Value() interface{} {
+	return i.value
 }
 
 // newItem creates a new item with the value
@@ -20,13 +20,13 @@ func newItem(value interface{}) *Item {
 }
 
 // Next returns a next item connected to the current item in the list
-func (itm Item) Next() *Item {
-	return itm.next
+func (i Item) Next() *Item {
+	return i.next
 }
 
 // Prev returns a previous item connected to the current item in the list
-func (itm Item) Prev() *Item {
-	return itm.prev
+func (i Item) Prev() *Item {
+	return i.prev
 }
 
 // List describes a doubly linked list
@@ -37,69 +37,69 @@ type List struct {
 }
 
 // Len returns a count of elements in the list
-func (lst List) Len() int {
-	return lst.len
+func (l List) Len() int {
+	return l.len
 }
 
 // First returns a first item of the list
-func (lst List) First() *Item {
-	return lst.first
+func (l List) First() *Item {
+	return l.first
 }
 
 // Last returns a last item of the list
-func (lst List) Last() *Item {
-	return lst.last
+func (l List) Last() *Item {
+	return l.last
 }
 
 // PushFront adds a value to the beginning of the list
-func (lst *List) PushFront(v interface{}) {
-	newItem := newItem(v)
-	if lst.first == nil {
-		lst.first = newItem
-		lst.last = newItem
-		lst.len++
+func (l *List) PushFront(value interface{}) {
+	newItem := newItem(value)
+	if l.first == nil {
+		l.first = newItem
+		l.last = newItem
+		l.len++
 		return
 	}
-	lst.first.prev = newItem
-	newItem.next = lst.first
-	lst.first = newItem
-	lst.len++
+	l.first.prev = newItem
+	newItem.next = l.first
+	l.first = newItem
+	l.len++
 }
 
 // PushBack adds a value to the end of the list
-func (lst *List) PushBack(v interface{}) {
-	newItem := newItem(v)
-	if lst.first == nil {
-		lst.first = newItem
-		lst.last = newItem
-		lst.len++
+func (l *List) PushBack(value interface{}) {
+	newItem := newItem(value)
+	if l.first == nil {
+		l.first = newItem
+		l.last = newItem
+		l.len++
 		return
 	}
-	lst.last.next = newItem
-	newItem.prev = lst.last
-	lst.last = newItem
-	lst.len++
+	l.last.next = newItem
+	newItem.prev = l.last
+	l.last = newItem
+	l.len++
 }
 
 // Remove removes an item from the list
-func (lst *List) Remove(i Item) {
-	if i.Prev() == nil && i.Next() == nil {
-		lst.first = nil
-		lst.last = nil
-		lst.len = 0
+func (l *List) Remove(item Item) {
+	if item.Prev() == nil && item.Next() == nil {
+		l.first = nil
+		l.last = nil
+		l.len = 0
 		return
 	}
-	if *lst.Last() == i {
-		lst.last = i.Prev()
+	if *l.Last() == item {
+		l.last = item.Prev()
 	}
-	if i.Prev() != nil {
-		i.Prev().next = i.Next()
-		lst.len--
+	if item.Prev() != nil {
+		item.Prev().next = item.Next()
+		l.len--
 		return
 	}
-	if *lst.First() == i {
-		lst.first = i.Next()
+	if *l.First() == item {
+		l.first = item.Next()
 	}
-	i.Next().prev = i.Prev()
-	lst.len--
+	item.Next().prev = item.Prev()
+	l.len--
 }
