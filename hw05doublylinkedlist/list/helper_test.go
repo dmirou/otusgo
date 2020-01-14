@@ -32,7 +32,6 @@ func TestGenerateInt(t *testing.T) {
 			PossibleValues: []int{1, 2, 3},
 		},
 	}
-
 	for _, testCase := range testCases {
 		actual, err := GenerateInt(testCase.Min, testCase.Max)
 		assert.Containsf(t, testCase.PossibleValues, actual, "Value is out of range")
@@ -40,10 +39,9 @@ func TestGenerateInt(t *testing.T) {
 	}
 }
 
+// TestGenerateSlice checks that the method GenerateSlice generates slice with a specified length
 func TestGenerateSlice(t *testing.T) {
-
 	var lengths = []int{1, 2, 5, 10}
-
 	for _, length := range lengths {
 		result, err := GenerateSlice(length)
 		assert.Lenf(t, result, length, "Slice length is invalid")
