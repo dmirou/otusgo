@@ -78,37 +78,43 @@ func generateRandomList(t *testing.T) (*List, []int) {
 
 // RemoveTestCase describes input data for testing list.Remove method.
 type RemoveTestCase struct {
-	Values        []int
+	Source        []int
 	IndexToRemove int
+	Result        []int
 }
 
 // TestRemove checks that a list item is removed from the list.
 func TestRemove(t *testing.T) {
 	testCases := []RemoveTestCase{
 		{
-			Values:        []int{4},
+			Source:        []int{4},
 			IndexToRemove: 0,
+			Result:        []int{},
 		},
 		{
-			Values:        []int{4, 2, 8, 4, 1},
+			Source:        []int{4, 2, 8, 4, 1},
 			IndexToRemove: 0,
+			Result:        []int{2, 8, 4, 1},
 		},
 		{
-			Values:        []int{4, 1, 2, 10, 12, 4},
+			Source:        []int{4, 1, 2, 10, 12, 4},
 			IndexToRemove: 5,
+			Result:        []int{4, 1, 2, 10, 12},
 		},
 		{
-			Values:        []int{4, 2, 8, 1},
+			Source:        []int{4, 2, 8, 1},
 			IndexToRemove: 1,
+			Result:        []int{4, 8, 1},
 		},
 		{
-			Values:        []int{4, 1, 2, 10},
+			Source:        []int{4, 1, 2, 10},
 			IndexToRemove: 2,
+			Result:        []int{4, 1, 10},
 		},
 	}
 	for _, testCase := range testCases {
 		var list = new(List)
-		for _, value := range testCase.Values {
+		for _, value := range testCase.Source {
 			list.PushBack(value)
 		}
 		var curItem = list.First()
@@ -121,16 +127,25 @@ func TestRemove(t *testing.T) {
 			curItem = curItem.Next()
 		}
 		list.Remove(itemToRemove)
-
-		expectedValues := append(testCase.Values[:testCase.IndexToRemove],
-			testCase.Values[testCase.IndexToRemove+1:]...)
-		var actualValues = make([]int, len(expectedValues))
+		var expectedLength = len(testCase.Result)
+		assert.Equalf(t, expectedLength, list.Len(), "Item was not removed from the list")
+		if expectedLength == 0 {
+			continue
+		}
+		var actualValues = make([]int, expectedLength)
 		var i = 0
 		for curItem := list.First(); curItem != nil; curItem = curItem.Next() {
 			actualValues[i] = curItem.Value().(int)
 			i++
 		}
-		assert.Equalf(t, len(expectedValues), list.Len(), "Item was not removed from the list")
-		assert.Equalf(t, expectedValues, actualValues, "Item was not correctly removed from the list")
+		assert.Equalf(t, testCase.Result, actualValues, "incorrect values when traversing a list from the beginning")
+
+		actualValues = make([]int, expectedLength)
+		i = expectedLength - 1
+		for curItem := list.Last(); curItem != nil; curItem = curItem.Prev() {
+			actualValues[i] = curItem.Value().(int)
+			i--
+		}
+		assert.Equalf(t, testCase.Result, actualValues, "incorrect values when traversing a list from the end")
 	}
 }

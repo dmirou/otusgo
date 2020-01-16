@@ -89,17 +89,17 @@ func (l *List) Remove(item Item) {
 		l.len = 0
 		return
 	}
+	if *l.First() == item {
+		l.first = item.Next()
+	}
 	if *l.Last() == item {
 		l.last = item.Prev()
 	}
 	if item.Prev() != nil {
 		item.Prev().next = item.Next()
-		l.len--
-		return
 	}
-	if *l.First() == item {
-		l.first = item.Next()
+	if item.Next() != nil {
+		item.Next().prev = item.Prev()
 	}
-	item.Next().prev = item.Prev()
 	l.len--
 }
