@@ -48,8 +48,9 @@ func TestItemPrev(t *testing.T) {
 
 // TestListPushFront checks that values are added to the list via PushFront method.
 func TestListPushFront(t *testing.T) {
-	var list = new(List)
-	var values, err = GenerateSliceWithLength(5, 10)
+	list, err := NewList()
+	assert.Nilf(t, err, "List was not created correctly")
+	values, err := GenerateSliceWithLength(5, 10)
 	assert.Nilf(t, err, "Slice was not generated correctly")
 	for _, value := range values {
 		list.PushFront(value)
@@ -65,8 +66,9 @@ func TestListPushBack(t *testing.T) {
 
 // generateRandomList return a random list and it's values.
 func generateRandomList(t *testing.T) (*List, []int) {
-	var list = new(List)
-	var values, err = GenerateSliceWithLength(5, 10)
+	list, err := NewList()
+	assert.Nilf(t, err, "List was not created correctly")
+	values, err := GenerateSliceWithLength(5, 10)
 	assert.Nilf(t, err, "Slice was not generated correctly")
 	for _, value := range values {
 		list.PushBack(value)
@@ -113,7 +115,8 @@ func TestRemove(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		var list = new(List)
+		list, err := NewList()
+		assert.Nilf(t, err, "List was not created correctly")
 		for _, value := range testCase.Source {
 			list.PushBack(value)
 		}
@@ -126,7 +129,9 @@ func TestRemove(t *testing.T) {
 			}
 			curItem = curItem.Next()
 		}
-		list.Remove(itemToRemove)
+		ok, err := list.Remove(itemToRemove)
+		assert.Truef(t, ok, "Item was not removed from the list")
+		assert.Nilf(t, err, "Item was not removed from the list")
 		var expectedLength = len(testCase.Result)
 		assert.Equalf(t, expectedLength, list.Len(), "Item was not removed from the list")
 		if expectedLength == 0 {
@@ -148,4 +153,14 @@ func TestRemove(t *testing.T) {
 		}
 		assert.Equalf(t, testCase.Result, actualValues, "incorrect values when traversing a list from the end")
 	}
+}
+
+// TestRemoveFromAnotherList checks that the list can't remove an item from a different list.
+func TestRemoveFromAnotherList(t *testing.T) {
+	firstList, _ := generateRandomList(t)
+	secondList, _ := generateRandomList(t)
+
+	ok, err := secondList.Remove(*firstList.First())
+	assert.Falsef(t, ok, "First list's item removed from the second list")
+	assert.Errorf(t, err, "First list's item removed from the second list")
 }
