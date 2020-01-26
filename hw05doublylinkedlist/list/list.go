@@ -87,15 +87,15 @@ func (l *List) PushBack(value interface{}) {
 }
 
 // Remove removes an item from the list.
-func (l *List) Remove(item Item) (bool, error) {
+func (l *List) Remove(item Item) error {
 	if item.list != l {
-		return false, errors.Errorf("The list doesn't contain the passed item")
+		return errors.Errorf("The list doesn't contain the passed item")
 	}
 	if item.Prev() == nil && item.Next() == nil {
 		l.first = nil
 		l.last = nil
 		l.len = 0
-		return true, nil
+		return nil
 	}
 	if *l.First() == item {
 		l.first = item.Next()
@@ -110,7 +110,7 @@ func (l *List) Remove(item Item) (bool, error) {
 		item.Next().prev = item.Prev()
 	}
 	l.len--
-	return true, nil
+	return nil
 }
 
 // NewList creates a new empty list.

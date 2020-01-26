@@ -129,8 +129,7 @@ func TestRemove(t *testing.T) {
 			}
 			curItem = curItem.Next()
 		}
-		ok, err := list.Remove(itemToRemove)
-		assert.Truef(t, ok, "Item was not removed from the list")
+		err = list.Remove(itemToRemove)
 		assert.Nilf(t, err, "Item was not removed from the list")
 		var expectedLength = len(testCase.Result)
 		assert.Equalf(t, expectedLength, list.Len(), "Item was not removed from the list")
@@ -160,7 +159,6 @@ func TestRemoveFromAnotherList(t *testing.T) {
 	firstList, _ := generateRandomList(t)
 	secondList, _ := generateRandomList(t)
 
-	ok, err := secondList.Remove(*firstList.First())
-	assert.Falsef(t, ok, "First list's item removed from the second list")
+	err := secondList.Remove(*firstList.First())
 	assert.Errorf(t, err, "First list's item removed from the second list")
 }
