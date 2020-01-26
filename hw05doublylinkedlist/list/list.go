@@ -4,10 +4,10 @@ import "github.com/pkg/errors"
 
 // Item is the item of the doubly linked list.
 type Item struct {
-	value  interface{}
-	listId int
-	next   *Item
-	prev   *Item
+	value interface{}
+	list  *List
+	next  *Item
+	prev  *Item
 }
 
 // Value returns a value of the item.
@@ -34,7 +34,6 @@ func (i Item) Prev() *Item {
 
 // List describes a doubly linked list.
 type List struct {
-	id    int
 	first *Item
 	last  *Item
 	len   int
@@ -58,7 +57,7 @@ func (l List) Last() *Item {
 // PushFront adds a value to the beginning of the list.
 func (l *List) PushFront(value interface{}) {
 	newItem := newItem(value)
-	newItem.listId = l.id
+	newItem.list = l
 	if l.first == nil {
 		l.first = newItem
 		l.last = newItem
@@ -74,7 +73,7 @@ func (l *List) PushFront(value interface{}) {
 // PushBack adds a value to the end of the list.
 func (l *List) PushBack(value interface{}) {
 	newItem := newItem(value)
-	newItem.listId = l.id
+	newItem.list = l
 	if l.first == nil {
 		l.first = newItem
 		l.last = newItem
@@ -89,7 +88,7 @@ func (l *List) PushBack(value interface{}) {
 
 // Remove removes an item from the list.
 func (l *List) Remove(item Item) (bool, error) {
-	if item.listId != l.id {
+	if item.list != l {
 		return false, errors.Errorf("The list doesn't contain the passed item")
 	}
 	if item.Prev() == nil && item.Next() == nil {
@@ -114,13 +113,7 @@ func (l *List) Remove(item Item) (bool, error) {
 	return true, nil
 }
 
-// NewList creates a new empty list with a random id
+// NewList creates a new empty list.
 func NewList() (*List, error) {
-	var list = new(List)
-	id, err := GenerateInt(0, 10000)
-	if err != nil {
-		return nil, errors.Wrap(err, "can't generate new list id")
-	}
-	list.id = id
-	return list, nil
+	return new(List), nil
 }
