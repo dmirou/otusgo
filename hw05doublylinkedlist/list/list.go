@@ -87,20 +87,22 @@ func (l *List) PushBack(value interface{}) {
 }
 
 // Remove removes an item from the list.
-func (l *List) Remove(item Item) error {
+func (l *List) Remove(item *Item) error {
 	if item.list != l {
 		return errors.Errorf("The list doesn't contain the passed item")
 	}
 	if item.Prev() == nil && item.Next() == nil {
+		item.list = nil
 		l.first = nil
 		l.last = nil
 		l.len = 0
 		return nil
 	}
-	if *l.First() == item {
+	item.list = nil
+	if l.First() == item {
 		l.first = item.Next()
 	}
-	if *l.Last() == item {
+	if l.Last() == item {
 		l.last = item.Prev()
 	}
 	if item.Prev() != nil {

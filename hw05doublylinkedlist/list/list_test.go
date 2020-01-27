@@ -121,10 +121,10 @@ func TestRemove(t *testing.T) {
 			list.PushBack(value)
 		}
 		var curItem = list.First()
-		var itemToRemove Item
+		var itemToRemove *Item
 		for i := 0; i < list.Len(); i++ {
 			if i == testCase.IndexToRemove {
-				itemToRemove = *curItem
+				itemToRemove = curItem
 				break
 			}
 			curItem = curItem.Next()
@@ -159,6 +159,6 @@ func TestRemoveFromAnotherList(t *testing.T) {
 	firstList, _ := generateRandomList(t)
 	secondList, _ := generateRandomList(t)
 
-	err := secondList.Remove(*firstList.First())
+	err := secondList.Remove(firstList.First())
 	assert.Errorf(t, err, "First list's item removed from the second list")
 }
