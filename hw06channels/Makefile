@@ -1,4 +1,4 @@
-PROJECT = github.com/dmirou/otusgo/template
+PROJECT = github.com/dmirou/otusgo/hw06channels
 HAS_LINT := $(shell command -v golangci-lint;)
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
