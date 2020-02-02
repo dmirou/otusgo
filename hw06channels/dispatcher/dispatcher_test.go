@@ -16,7 +16,7 @@ type TestCase struct {
 func TestRun(t *testing.T) {
 	testCases := []TestCase{
 		{
-			Tasks:  generateTasks(10, 0),
+			Tasks:  GenerateTasks(10, 0),
 			N:      2,
 			M:      0,
 			Result: nil,

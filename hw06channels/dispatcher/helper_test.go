@@ -11,7 +11,7 @@ type GenerateTasksCase struct {
 	ErrorCount   int
 }
 
-// TestGenerateTasks checks that generateTasks makes a slice with the specified counts of tasks.
+// TestGenerateTasks checks that GenerateTasks makes a slice with the specified counts of tasks.
 func TestGenerateTasks(t *testing.T) {
 	testCases := []GenerateTasksCase{
 		{
@@ -45,7 +45,7 @@ func TestGenerateTasks(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		tasks := generateTasks(testCase.SuccessCount, testCase.ErrorCount)
+		tasks := GenerateTasks(testCase.SuccessCount, testCase.ErrorCount)
 		actualSuccessCount := 0
 		actualErrorCount := 0
 		for _, task := range tasks {

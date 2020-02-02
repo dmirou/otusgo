@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// generateTasks makes a slice with success and error tasks.
-func generateTasks(successCount, errorCount int) []Task {
+// GenerateTasks makes a slice with success and error tasks.
+func GenerateTasks(successCount, errorCount int) []Task {
 	successTask := func() error {
 		sleepTime := time.Duration(rand.Intn(500)) * time.Millisecond
 		time.Sleep(sleepTime)
