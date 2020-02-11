@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
+
+	"github.com/vbauerster/mpb"
+	"github.com/vbauerster/mpb/decor"
 )
 
 // CopyWithProgress copies bytes from a specified path to a specified destination with a specified
@@ -15,7 +19,7 @@ import (
 // It returns nil if bytes were copied successfully.
 // It returns error if It can't define a file size to copy from.
 // It returns error if offset greater than the source file size and there is nothing to copy.
-func CopyWithProgress(from string, to string, limit int, offset int) error {
+func CopyWithProgress(from string, to string, limit int64, offset int64) error {
 	srcFile, err := os.Open(from)
 	if err != nil {
 		return err
@@ -28,30 +32,60 @@ func CopyWithProgress(from string, to string, limit int, offset int) error {
 	if info.IsDir() {
 		return fmt.Errorf("can't copy directory, only simple file")
 	}
-	if int64(offset) > info.Size() {
+	if offset > info.Size() {
 		return fmt.Errorf("offset %d is bigger than file size %d, nothing to copy",
 			offset, info.Size())
 	}
-	var bufSize int64
+	var actualLimit int64
 	if limit == 0 {
-		bufSize = info.Size()
+		actualLimit = info.Size()
 	} else {
-		bufSize = int64(limit)
+		actualLimit = limit
 	}
+	name := path.Base(from)
+	container := mpb.New(mpb.WithWidth(64))
+	bar := container.AddBar(actualLimit,
+		mpb.BarStyle("[=>-|"),
+		mpb.PrependDecorators(
+			decor.CountersKibiByte("% .2f / % .2f "),
+			decor.OnComplete(decor.Name(name, decor.WC{W: len(name), C: decor.DextraSpace}), "done!"),
+		),
+		mpb.AppendDecorators(decor.Percentage()),
+	)
+	bufSize := actualLimit / 100
 	buf := make([]byte, bufSize)
-	_, err = srcFile.ReadAt(buf, int64(offset))
-	if err != nil && err != io.EOF {
-		return err
-	}
 	dstFile, err := os.Create(to)
 	if err != nil {
 		return err
 	}
 	defer dstFile.Close()
-	_, err = dstFile.Write(buf)
+	for i := 1; i < 100; i++ {
+		if err := copyPortion(srcFile, dstFile, &buf, offset); err != nil {
+			return err
+		}
+		bar.IncrBy(int(bufSize))
+		offset += bufSize
+	}
+	lastBufSize := bufSize + actualLimit%100
+	lastBuf := make([]byte, lastBufSize)
+	if err := copyPortion(srcFile, dstFile, &lastBuf, offset); err != nil {
+		return err
+	}
+	bar.IncrBy(int(lastBufSize))
+
+	container.Wait()
+
+	return nil
+}
+
+func copyPortion(srcFile io.ReaderAt, dstFile io.Writer, buf *[]byte, offset int64) error {
+	_, err := srcFile.ReadAt(*buf, offset)
+	if err != nil && err != io.EOF {
+		return err
+	}
+	_, err = dstFile.Write(*buf)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
