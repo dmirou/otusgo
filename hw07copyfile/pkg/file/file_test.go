@@ -25,10 +25,12 @@ const (
 	oneKb
 	oneMb
 	tenMb
+	hundredMb
+	oneGb
 )
 
 func (d srcFiles) String() string {
-	return [...]string{"oneByte", "fiveBytes", "oneKb", "oneMb", "tenMb"}[d]
+	return [...]string{"oneByte", "fiveBytes", "oneKb", "oneMb", "tenMb", "hundredMb", "oneGb"}[d]
 }
 
 var sourceFiles = map[string]int{
@@ -37,15 +39,13 @@ var sourceFiles = map[string]int{
 	oneKb.String():     1 * KiloByte,
 	oneMb.String():     1 * MegaByte,
 	tenMb.String():     10 * MegaByte,
+	tenMb.String():     10 * MegaByte,
+	hundredMb.String(): 100 * MegaByte,
+	oneGb.String():     1000 * MegaByte,
 }
 
 func TestMain(m *testing.M) {
-	if err := os.RemoveAll(srcDir); err != nil {
-		exitWithError(err)
-	}
-	if err := os.RemoveAll(destDir); err != nil {
-		exitWithError(err)
-	}
+	rmDirs()
 	if err := os.Mkdir(srcDir, os.ModeDir|os.ModePerm); err != nil {
 		exitWithError(err)
 	}
@@ -60,7 +60,17 @@ func TestMain(m *testing.M) {
 		}
 	}
 	code := m.Run()
+	rmDirs()
 	os.Exit(code)
+}
+
+func rmDirs() {
+	if err := os.RemoveAll(srcDir); err != nil {
+		exitWithError(err)
+	}
+	if err := os.RemoveAll(destDir); err != nil {
+		exitWithError(err)
+	}
 }
 
 func exitWithError(err error) {
@@ -96,12 +106,24 @@ func generateRandomFile(path string, size int) error {
 func TestCopy(t *testing.T) {
 	testCases := []struct {
 		srcName string
-		limit   int
-		offset  int
+		limit   int64
+		offset  int64
 		err     error
 	}{
 		{
 			srcName: oneByte.String(),
+			limit:   0,
+			offset:  0,
+			err:     nil,
+		},
+		{
+			srcName: fiveBytes.String(),
+			limit:   0,
+			offset:  0,
+			err:     nil,
+		},
+		{
+			srcName: tenMb.String(),
 			limit:   0,
 			offset:  0,
 			err:     nil,
