@@ -14,7 +14,7 @@ const (
 	destDir  = "./dest"
 	Byte     = 1
 	KiloByte = 1024 * Byte
-	MegaByte = 1024 * Byte
+	MegaByte = 1024 * KiloByte
 )
 
 type srcFiles int
