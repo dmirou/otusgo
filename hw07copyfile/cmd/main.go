@@ -18,24 +18,24 @@ Usage: cp [OPTION]... -src SOURCE -dest DEST
 Copy SOURCE file to DEST file.
 
 Options:
-- src 		(mandatory)	path of file to copy
-- dst 		(mandatory)	path of destination file
+- dest 		(mandatory)	path of destination file
+- src 		(mandatory)	path of source file to copy
 - limit 	(optional)	maximum bytes to copy
-- offset 	(optional)	file to read from
+- offset 	(optional)	offset in source file
 
 Examples:
 
 With minimum options
-	cp -src /tmp/from.txt -dst /tmp/to.txt
+	cp -src /tmp/from.txt -dest /tmp/to.txt
 
 With maximum options
-	cp -src /tmp/from.txt -dst /tmp/to.txt -offset 10 -limit 5`
+	cp -src /tmp/from.txt -dest /tmp/to.txt -offset 10 -limit 5`
 
 // nolint: gochecknoinits
 func init() {
-	flag.StringVar(&src, "src", "", "path of file to copy")
-	flag.StringVar(&dest, "dst", "", "path of destination file")
-	flag.IntVar(&offset, "offset", 0, "file to read from")
+	flag.StringVar(&src, "src", "", "path of source file to copy")
+	flag.StringVar(&dest, "dest", "", "path of destination file")
+	flag.IntVar(&offset, "offset", 0, "offset in source file")
 	flag.IntVar(&limit, "limit", 0, "maximum bytes to copy")
 }
 
@@ -53,7 +53,7 @@ func main() {
 	}
 
 	if dest == "" {
-		fmt.Println("Destination file is missing. Please specify it with -dst option.")
+		fmt.Println("Destination file is missing. Please specify it with -dest option.")
 		os.Exit(1)
 	}
 
