@@ -104,38 +104,43 @@ func generateRandomFile(path string, size int) error {
 }
 
 func TestCopy(t *testing.T) {
-	testCases := []struct {
-		srcName string
-		limit   int64
-		offset  int64
-		err     error
+	testData := []struct {
+		srcName  string
+		limit    int64
+		offset   int64
+		hasError bool
 	}{
 		{
-			srcName: oneByte.String(),
-			limit:   0,
-			offset:  0,
-			err:     nil,
+			srcName:  oneByte.String(),
+			limit:    0,
+			offset:   0,
+			hasError: false,
 		},
 		{
-			srcName: fiveBytes.String(),
-			limit:   0,
-			offset:  0,
-			err:     nil,
+			srcName:  fiveBytes.String(),
+			limit:    0,
+			offset:   0,
+			hasError: false,
 		},
 		{
-			srcName: tenMb.String(),
-			limit:   0,
-			offset:  0,
-			err:     nil,
+			srcName:  tenMb.String(),
+			limit:    0,
+			offset:   0,
+			hasError: false,
 		},
 	}
-	for _, testCase := range testCases {
-		srcPath := buildFilePath(srcDir, testCase.srcName)
-		destPath := buildFilePath(destDir, testCase.srcName)
-		err := CopyWithProgress(srcPath, destPath, testCase.limit, testCase.offset)
-		if err != testCase.err {
-			t.Errorf("result not matches for testCase %v, expected: %s, actual %s",
-				testCase, testCase.err, err)
+	for _, td := range testData {
+		name := fmt.Sprintf("file %q, limit %d, offset %d", td.srcName, td.limit, td.offset)
+		srcPath := buildFilePath(srcDir, td.srcName)
+		destPath := buildFilePath(destDir, td.srcName)
+		err := CopyWithProgress(srcPath, destPath, td.limit, td.offset)
+		if td.hasError && err == nil {
+			t.Errorf("copying file completed without error, but expected: %s", name)
+			continue
+		}
+		if !td.hasError && err != nil {
+			t.Errorf("copying file completed unexpected with error %v, but expected: %s", err, name)
+			continue
 		}
 	}
 }
