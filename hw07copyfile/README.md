@@ -24,13 +24,16 @@
 
 ## Usage
 
-To update dependencies, run tests and lint:
+To compile and run binary use:
 ```bash
 make
 ```
 
 ### Other make commands
 
+* `clean` - remove compiled binary file
+* `compile` - compile binary file 
+* `run` - compile and run the binary file
 * `bootstrap` - download golangci-lint, if it is not exists
 * `lint` - run golangci linter
 * `test` - run all tests
