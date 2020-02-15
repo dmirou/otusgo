@@ -1,9 +1,11 @@
 package file
 
 import (
+	"bytes"
 	"crypto/rand"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -133,6 +135,7 @@ func TestCopy(t *testing.T) {
 		name := fmt.Sprintf("file %q, limit %d, offset %d", td.srcName, td.limit, td.offset)
 		srcPath := buildFilePath(srcDir, td.srcName)
 		destPath := buildFilePath(destDir, td.srcName)
+
 		err := CopyWithProgress(srcPath, destPath, td.limit, td.offset)
 		if td.hasError && err == nil {
 			t.Errorf("copying file completed without error, but expected: %s", name)
@@ -140,6 +143,27 @@ func TestCopy(t *testing.T) {
 		}
 		if !td.hasError && err != nil {
 			t.Errorf("copying file completed unexpected with error %v, but expected: %s", err, name)
+			continue
+		}
+
+		if td.hasError {
+			continue
+		}
+
+		expected, err := ioutil.ReadFile(srcPath)
+		if err != nil {
+			t.Errorf("source file reading completed with error %v: %s", err, name)
+			continue
+		}
+
+		actual, err := ioutil.ReadFile(destPath)
+		if err != nil {
+			t.Errorf("destination file reading completed with error %v: %s", err, name)
+			continue
+		}
+
+		if !bytes.Equal(expected, actual) {
+			t.Errorf("destination file is different from the source: %s", name)
 			continue
 		}
 	}
