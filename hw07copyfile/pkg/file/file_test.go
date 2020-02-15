@@ -27,12 +27,10 @@ const (
 	oneKb
 	oneMb
 	tenMb
-	hundredMb
-	oneGb
 )
 
 func (d srcFiles) String() string {
-	return [...]string{"oneByte", "fiveBytes", "oneKb", "oneMb", "tenMb", "hundredMb", "oneGb"}[d]
+	return [...]string{"oneByte", "fiveBytes", "oneKb", "oneMb", "tenMb"}[d]
 }
 
 var sourceFiles = map[string]int{
@@ -41,9 +39,6 @@ var sourceFiles = map[string]int{
 	oneKb.String():     1 * KiloByte,
 	oneMb.String():     1 * MegaByte,
 	tenMb.String():     10 * MegaByte,
-	tenMb.String():     10 * MegaByte,
-	hundredMb.String(): 100 * MegaByte,
-	oneGb.String():     1000 * MegaByte,
 }
 
 func TestMain(m *testing.M) {
@@ -120,14 +115,20 @@ func TestCopy(t *testing.T) {
 		},
 		{
 			srcName:  fiveBytes.String(),
-			limit:    0,
-			offset:   0,
+			limit:    5,
+			offset:   10,
+			hasError: true,
+		},
+		{
+			srcName:  oneKb.String(),
+			limit:    15,
+			offset:   10,
 			hasError: false,
 		},
 		{
 			srcName:  tenMb.String(),
-			limit:    0,
-			offset:   0,
+			limit:    2 * MegaByte,
+			offset:   1 * MegaByte,
 			hasError: false,
 		},
 	}
@@ -150,10 +151,17 @@ func TestCopy(t *testing.T) {
 			continue
 		}
 
-		expected, err := ioutil.ReadFile(srcPath)
+		buf, err := ioutil.ReadFile(srcPath)
 		if err != nil {
 			t.Errorf("source file reading completed with error %v: %s", err, name)
 			continue
+		}
+
+		var expected []byte
+		if td.limit == 0 {
+			expected = buf[td.offset:]
+		} else {
+			expected = buf[td.offset : td.offset+td.limit]
 		}
 
 		actual, err := ioutil.ReadFile(destPath)
