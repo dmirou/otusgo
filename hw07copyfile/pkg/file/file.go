@@ -32,6 +32,9 @@ func CopyWithProgress(from string, to string, limit int64, offset int64) error {
 	if info.IsDir() {
 		return fmt.Errorf("can't copy directory, only simple file")
 	}
+	if info.Size() == 0 {
+		return fmt.Errorf("can't copy file with the zero size")
+	}
 	if offset > info.Size() {
 		return fmt.Errorf("offset %d is bigger than file size %d, nothing to copy",
 			offset, info.Size())
