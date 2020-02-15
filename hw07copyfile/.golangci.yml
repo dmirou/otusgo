@@ -1,7 +1,7 @@
 run:
   concurrency: 4
   deadline: 2m
-  tests: false
+  tests: true
 
 linters-settings:
   govet:
