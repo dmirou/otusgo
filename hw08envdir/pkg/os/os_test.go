@@ -3,7 +3,6 @@ package os
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"os"
 	"reflect"
 	"testing"
@@ -79,12 +78,6 @@ func TestRunCmd(t *testing.T) {
 			"ENV_VAR1=test_env_var_value1\nENV_VAR2=test_env_var_value2\n",
 			"",
 		},
-		"echo to stderr": {
-			[]string{"./echotostderr"},
-			map[string]string{},
-			"",
-			"Hello from echostderr\n",
-		},
 	}
 
 	for name, td := range testData {
@@ -143,7 +136,7 @@ echo "Hello from temp file" >&2`
 		execFile := td.cmd[0]
 
 		if err := os.Chmod(execFile, 0777); err != nil {
-			log.Fatalf("Can't change %s mode", execFile)
+			t.Errorf("Can't change %s mode", execFile)
 		}
 
 		testRunCmd(t, name, td)
