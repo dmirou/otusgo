@@ -74,6 +74,12 @@ func TestRunCmd(t *testing.T) {
 			"ENV_VAR1=test_env_var_value1\nENV_VAR2=test_env_var_value2\n",
 			"",
 		},
+		"echo to stderr": {
+			[]string{"./echotostderr"},
+			map[string]string{},
+			"",
+			"Hello from echostderr\n",
+		},
 	}
 
 	for _, td := range testData {
