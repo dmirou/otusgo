@@ -20,6 +20,8 @@ func TestReadDir(t *testing.T) {
 			"./testenvdir",
 			false,
 			map[string]string{
+				"PATH":                   "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+				"TMPDIR":                 "~/tmp/",
 				"VAR_1_UPPER":            "VALUE_1_UPPER",
 				"var_2_lower":            "value_2_lower",
 				"VAR_3-DASH":             "VALUE_3-DASH",
