@@ -1,6 +1,7 @@
 package os
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 )
@@ -44,6 +45,43 @@ func TestReadDir(t *testing.T) {
 			t.Fatalf("env vars not equal with dir: %q,\nexpected: %q\nactual: %q",
 				td.dir, td.env, actual)
 			continue
+		}
+	}
+}
+
+// TestRunCmd checks that RunCmd function runs specified command with specified environment variables
+func TestRunCmd(t *testing.T) {
+	testData := map[string]struct {
+		cmd []string
+		env map[string]string
+		out string
+	}{
+		"one env var": {
+			[]string{"printenv", "ENV_VAR"},
+			map[string]string{
+				"ENV_VAR": "test_env_var_value",
+			},
+			"test_env_var_value\n",
+		},
+		"two env var": {
+			[]string{"printenv"},
+			map[string]string{
+				"ENV_VAR1": "test_env_var_value1",
+				"ENV_VAR2": "test_env_var_value2",
+			},
+			"ENV_VAR1=test_env_var_value1\nENV_VAR2=test_env_var_value2\n",
+		},
+	}
+
+	for _, td := range testData {
+		in := bytes.NewReader([]byte{})
+		out := bytes.NewBufferString("")
+		err := bytes.NewBufferString("")
+		initIO(in, out, err)
+		RunCmd(td.cmd, td.env)
+
+		if out.String() != td.out {
+			t.Errorf("unexpected result in out stream: %q, expected: %q", out.String(), td.out)
 		}
 	}
 }
