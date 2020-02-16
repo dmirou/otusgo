@@ -2,6 +2,7 @@ package os
 
 import (
 	"bytes"
+	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -109,12 +110,32 @@ func testRunCmd(t *testing.T, name string, td runCmdData) {
 
 // TestRunCmdWithStdErr checks that RunCmd function runs specified command with correct stdError stream
 func TestRunCmdWithStdErr(t *testing.T) {
+	content := `#!/bin/bash
+echo "Hello from temp file" >&2`
+
+	dir := "/tmp"
+
+	tmpfile, err := ioutil.TempFile(dir, "example")
+	if err != nil {
+		t.Errorf("Can't create tmp file: %v", err)
+	}
+
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		t.Errorf("Can't write file %q: %v", tmpfile.Name(), err)
+	}
+
+	if err := tmpfile.Close(); err != nil {
+		t.Errorf("Can't close file  %q: %v", tmpfile.Name(), err)
+	}
+
 	testData := map[string]runCmdData{
 		"echo to stderr": {
-			[]string{"./echotostderr"},
+			[]string{tmpfile.Name()},
 			map[string]string{},
 			"",
-			"Hello from echotostderr\n",
+			"Hello from temp file\n",
 		},
 	}
 
