@@ -55,6 +55,7 @@ func TestRunCmd(t *testing.T) {
 		cmd []string
 		env map[string]string
 		out string
+		err string
 	}{
 		"one env var": {
 			[]string{"printenv", "ENV_VAR"},
@@ -62,6 +63,7 @@ func TestRunCmd(t *testing.T) {
 				"ENV_VAR": "test_env_var_value",
 			},
 			"test_env_var_value\n",
+			"",
 		},
 		"two env var": {
 			[]string{"printenv"},
@@ -70,6 +72,7 @@ func TestRunCmd(t *testing.T) {
 				"ENV_VAR2": "test_env_var_value2",
 			},
 			"ENV_VAR1=test_env_var_value1\nENV_VAR2=test_env_var_value2\n",
+			"",
 		},
 	}
 
@@ -82,6 +85,10 @@ func TestRunCmd(t *testing.T) {
 
 		if out.String() != td.out {
 			t.Errorf("unexpected result in out stream: %q, expected: %q", out.String(), td.out)
+		}
+
+		if err.String() != td.err {
+			t.Errorf("unexpected result in err stream: %q, expected: %q", err.String(), td.err)
 		}
 	}
 }
