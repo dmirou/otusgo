@@ -2,6 +2,8 @@ package os
 
 import (
 	"bytes"
+	"log"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -49,14 +51,16 @@ func TestReadDir(t *testing.T) {
 	}
 }
 
+type runCmdData struct {
+	cmd []string
+	env map[string]string
+	out string
+	err string
+}
+
 // TestRunCmd checks that RunCmd function runs specified command with specified environment variables
 func TestRunCmd(t *testing.T) {
-	testData := map[string]struct {
-		cmd []string
-		env map[string]string
-		out string
-		err string
-	}{
+	testData := map[string]runCmdData{
 		"one env var": {
 			[]string{"printenv", "ENV_VAR"},
 			map[string]string{
@@ -82,19 +86,45 @@ func TestRunCmd(t *testing.T) {
 		},
 	}
 
-	for _, td := range testData {
-		in := bytes.NewReader([]byte{})
-		out := bytes.NewBufferString("")
-		err := bytes.NewBufferString("")
-		initIO(in, out, err)
-		RunCmd(td.cmd, td.env)
+	for name, td := range testData {
+		testRunCmd(t, name, td)
+	}
+}
 
-		if out.String() != td.out {
-			t.Errorf("unexpected result in out stream: %q, expected: %q", out.String(), td.out)
+func testRunCmd(t *testing.T, name string, td runCmdData) {
+	in := bytes.NewReader([]byte{})
+	outBuf := bytes.NewBufferString("")
+	errBuf := bytes.NewBufferString("")
+	initIO(in, outBuf, errBuf)
+	RunCmd(td.cmd, td.env)
+
+	if outBuf.String() != td.out {
+		t.Errorf("test %s, unexpected result in out stream: %q, expected: %q", name, outBuf.String(), td.out)
+	}
+
+	if errBuf.String() != td.err {
+		t.Errorf("test %s, unexpected result in err stream: %q, expected: %q", name, errBuf.String(), td.err)
+	}
+}
+
+// TestRunCmdWithStdErr checks that RunCmd function runs specified command with correct stdError stream
+func TestRunCmdWithStdErr(t *testing.T) {
+	testData := map[string]runCmdData{
+		"echo to stderr": {
+			[]string{"./echotostderr"},
+			map[string]string{},
+			"",
+			"Hello from echotostderr\n",
+		},
+	}
+
+	for name, td := range testData {
+		execFile := td.cmd[0]
+
+		if err := os.Chmod(execFile, 0777); err != nil {
+			log.Fatalf("Can't change %s mode", execFile)
 		}
 
-		if err.String() != td.err {
-			t.Errorf("unexpected result in err stream: %q, expected: %q", err.String(), td.err)
-		}
+		testRunCmd(t, name, td)
 	}
 }
