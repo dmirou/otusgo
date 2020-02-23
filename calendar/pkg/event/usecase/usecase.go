@@ -1,4 +1,4 @@
-package event
+package usecase
 
 import (
 	"context"
