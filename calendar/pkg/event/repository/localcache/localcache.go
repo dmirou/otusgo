@@ -23,7 +23,8 @@ func (lc *LocalCache) Create(ctx context.Context, e *event.Event) error {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
-	lc.events[e.ID] = e
+	ecopy := *e
+	lc.events[ecopy.ID] = &ecopy
 
 	return nil
 }
@@ -37,10 +38,40 @@ func (lc *LocalCache) GetByID(ctx context.Context, id event.ID) (*event.Event, e
 		return nil, &event.NotFoundError{EventID: id}
 	}
 
-	return e, nil
+	ecopy := *e
+
+	return &ecopy, nil
 }
 
 func (lc *LocalCache) Update(ctx context.Context, e *event.Event) error {
+	lc.mu.Lock()
+	defer lc.mu.Unlock()
+
+	actual, ok := lc.events[e.ID]
+	if !ok {
+		return &event.NotFoundError{EventID: e.ID}
+	}
+
+	if actual.Title != e.Title {
+		actual.Title = e.Title
+	}
+
+	if actual.Desc != e.Desc {
+		actual.Desc = e.Desc
+	}
+
+	if actual.Start != e.Start {
+		actual.Start = e.Start
+	}
+
+	if actual.End != e.End {
+		actual.End = e.End
+	}
+
+	if actual.AllDay != e.AllDay {
+		actual.AllDay = e.AllDay
+	}
+
 	return nil
 }
 
@@ -67,7 +98,8 @@ func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*
 			continue
 		}
 
-		events = append(events, e)
+		ecopy := *e
+		events = append(events, &ecopy)
 	}
 
 	return events, nil

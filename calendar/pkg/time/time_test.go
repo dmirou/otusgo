@@ -59,3 +59,78 @@ func TestHasDate(t *testing.T) {
 		}
 	}
 }
+
+// nolint: funlen
+func TestInside(t *testing.T) {
+	testData := []struct {
+		t     *Time
+		start *Time
+		end   *Time
+		yes   bool
+	}{
+		{
+			New(2020, 2, 3, 10, 0),
+			New(2020, 2, 3, 10, 0),
+			New(2020, 2, 3, 10, 0),
+			false,
+		},
+		{
+			New(2021, 2, 3, 10, 0),
+			New(2021, 2, 3, 10, 0),
+			New(2021, 2, 3, 10, 1),
+			false,
+		},
+		{
+			New(2022, 2, 3, 10, 0),
+			New(2022, 2, 3, 10, 1),
+			New(2022, 2, 3, 10, 1),
+			false,
+		},
+		{
+			New(2023, 2, 3, 9, 59),
+			New(2023, 2, 3, 10, 0),
+			New(2023, 2, 3, 10, 1),
+			false,
+		},
+		{
+			New(2023, 2, 3, 9, 59),
+			New(2023, 2, 3, 10, 1),
+			New(2023, 2, 3, 10, 0),
+			false,
+		},
+		{
+			New(2024, 2, 3, 10, 2),
+			New(2024, 2, 3, 10, 0),
+			New(2024, 2, 3, 10, 1),
+			false,
+		},
+		{
+			New(2025, 2, 3, 10, 2),
+			New(2025, 2, 3, 10, 1),
+			New(2025, 2, 3, 10, 0),
+			false,
+		},
+		{
+			New(2030, 2, 3, 10, 1),
+			New(2030, 2, 3, 9, 59),
+			New(2030, 2, 3, 10, 2),
+			true,
+		},
+		{
+			New(2031, 2, 3, 10, 1),
+			New(2031, 2, 3, 10, 2),
+			New(2031, 2, 3, 9, 59),
+			true,
+		},
+	}
+
+	for _, td := range testData {
+		actual := td.t.Inside(*td.start, *td.end)
+		if actual != td.yes {
+			t.Errorf(
+				"unexpected result from Inside method: %t, expected: %t,\ndate: %s,\nstart: %s,\nend %s",
+				actual, td.yes, td.t, td.start, td.end,
+			)
+		}
+	}
+}

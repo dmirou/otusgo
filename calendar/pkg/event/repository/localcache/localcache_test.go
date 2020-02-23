@@ -81,7 +81,7 @@ func TestCreate(t *testing.T) {
 		t.Errorf("unexpected length after Create method: %d, expected: %d", len(lc.events), 1)
 	}
 
-	if lc.events[e.ID] != e {
+	if *lc.events[e.ID] != *e {
 		t.Errorf("unexpected event created: %v, expected: %v", lc.events[e.ID], e)
 	}
 
@@ -95,11 +95,11 @@ func TestCreate(t *testing.T) {
 		t.Errorf("unexpected length after Create method: %d, expected: %d", len(lc.events), 2)
 	}
 
-	if lc.events[e2.ID] != e2 {
+	if *lc.events[e2.ID] != *e2 {
 		t.Errorf("unexpected event created: %v, expected: %v", lc.events[e2.ID], e2)
 	}
 
-	if lc.events[e.ID] != e {
+	if *lc.events[e.ID] != *e {
 		t.Errorf("first event not found: %v, expected: %v", lc.events[e.ID], e)
 	}
 }
@@ -140,7 +140,9 @@ func TestGetByID(t *testing.T) {
 
 func fill(lc *LocalCache) error {
 	for _, e := range testData {
-		if err := lc.Create(context.Background(), e); err != nil {
+		var ecopy = *e
+
+		if err := lc.Create(context.Background(), &ecopy); err != nil {
 			return err
 		}
 	}
@@ -148,12 +150,43 @@ func fill(lc *LocalCache) error {
 	return nil
 }
 
-func TestDelete(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	lc := New()
 
 	if err := fill(lc); err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
+
+	e, _ := lc.GetByID(context.Background(), "1")
+	e.Title = "new event title"
+
+	if err := lc.Update(context.Background(), e); err != nil {
+		t.Fatalf("unexpected result in Update method: %v", err)
+	}
+
+	e2, _ := lc.GetByID(context.Background(), "1")
+	if e2.Title != e.Title {
+		t.Fatalf("unexpected event title in Update method: %q, expected: %q", e2.Title, e.Title)
+	}
+
+	e.ID = "nonexistent ID"
+	expected := &event.NotFoundError{EventID: e.ID}
+
+	if err := lc.Update(context.Background(), e); !errors.As(err, &expected) {
+		t.Errorf("unexpected error in Update: %v, expected %v", err, expected)
+	}
+}
+
+func TestDelete(t *testing.T) {
+	lc := New()
+
+	t.Logf("%v", lc)
+
+	if err := fill(lc); err != nil {
+		t.Fatalf("unexpected result in fill method: %v", err)
+	}
+
+	t.Logf("%v", lc)
 
 	var count int
 
