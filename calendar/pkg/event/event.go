@@ -1,6 +1,6 @@
 package event
 
-import "time"
+import "github.com/dmirou/otusgo/calendar/pkg/time"
 
 type ID string
 

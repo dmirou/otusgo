@@ -9,5 +9,5 @@ type UseCase interface {
 	GetEventByID(ctx context.Context, id ID) (*Event, error)
 	UpdateEvent(ctx context.Context, e *Event) error
 	DeleteEvent(ctx context.Context, id ID) error
-	ListEvents(ctx context.Context) ([]*Event, error)
+	ListEventsByDate(ctx context.Context, year, month, day int) ([]*Event, error)
 }

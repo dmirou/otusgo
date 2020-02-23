@@ -57,12 +57,16 @@ func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
 	return nil
 }
 
-func (lc *LocalCache) Find(ctx context.Context) ([]*event.Event, error) {
+func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*event.Event, error) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
-	var events = make([]*event.Event, len(lc.events))
+	var events = make([]*event.Event, 0)
 	for _, e := range lc.events {
+		if !e.Start.HasDate(year, month, day) {
+			continue
+		}
+
 		events = append(events, e)
 	}
 
