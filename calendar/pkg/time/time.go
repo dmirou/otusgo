@@ -13,6 +13,18 @@ func New(year, month, day, hour, min int) *Time {
 	}
 }
 
+func (t *Time) Year() int {
+	return t.t.Year()
+}
+
+func (t *Time) Month() int {
+	return int(t.t.Month())
+}
+
+func (t *Time) Day() int {
+	return t.t.Day()
+}
+
 func (t *Time) After(u Time) bool {
 	return t.t.After(u.t)
 }

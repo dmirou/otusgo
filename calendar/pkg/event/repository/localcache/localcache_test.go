@@ -2,10 +2,11 @@ package localcache
 
 import (
 	"context"
-	"errors"
+	goerrors "errors"
 	"fmt"
 	"testing"
 
+	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
 	"github.com/dmirou/otusgo/calendar/pkg/time"
 )
@@ -69,6 +70,28 @@ var testDataByDate = []struct {
 	},
 }
 
+var testCrossingData = []struct {
+	start *time.Time
+	end   *time.Time
+	ids   []event.ID
+}{
+	{
+		time.New(2020, 2, 15, 5, 15),
+		time.New(2020, 2, 15, 5, 45),
+		[]event.ID{"1"},
+	},
+	{
+		time.New(2020, 2, 15, 6, 00),
+		time.New(2020, 2, 15, 7, 30),
+		[]event.ID{"2"},
+	},
+	{
+		time.New(2020, 2, 18, 1, 30),
+		time.New(2020, 2, 18, 2, 30),
+		[]event.ID{},
+	},
+}
+
 func TestCreate(t *testing.T) {
 	lc := New()
 	e := testData["1"]
@@ -126,10 +149,10 @@ func TestGetByID(t *testing.T) {
 
 	var nonexistent event.ID = "nonexistent id"
 
-	var expected = &event.NotFoundError{EventID: nonexistent}
+	var expected = &errors.EventNotFoundError{EventID: nonexistent}
 
 	e, err := lc.GetByID(context.Background(), nonexistent)
-	if !errors.As(err, &expected) {
+	if !goerrors.As(err, &expected) {
 		t.Errorf("unexpected error returned from GetByID: %v, expected %v", err, expected)
 	}
 
@@ -170,9 +193,9 @@ func TestUpdate(t *testing.T) {
 	}
 
 	e.ID = "nonexistent ID"
-	expected := &event.NotFoundError{EventID: e.ID}
+	expected := &errors.EventNotFoundError{EventID: e.ID}
 
-	if err := lc.Update(context.Background(), e); !errors.As(err, &expected) {
+	if err := lc.Update(context.Background(), e); !goerrors.As(err, &expected) {
 		t.Errorf("unexpected error in Update: %v, expected %v", err, expected)
 	}
 }
@@ -211,11 +234,11 @@ func TestDelete(t *testing.T) {
 
 	var (
 		nonexistent event.ID = "nonexistent id"
-		expected             = &event.NotFoundError{EventID: nonexistent}
+		expected             = &errors.EventNotFoundError{EventID: nonexistent}
 	)
 
 	err := lc.Delete(context.Background(), nonexistent)
-	if !errors.As(err, &expected) {
+	if !goerrors.As(err, &expected) {
 		t.Errorf("unexpected error returned from Delete: %v, expected %v", err, expected)
 	}
 }
@@ -264,5 +287,39 @@ func TestFindByDate(t *testing.T) {
 
 	if len(evs) != 0 {
 		t.Errorf("unexpected count in FindByDate method: %d, expected: %d", len(evs), 0)
+	}
+}
+
+func TestFindCrossing(t *testing.T) {
+	lc := New()
+
+	if err := fill(lc); err != nil {
+		t.Fatalf("unexpected result in fill method: %v", err)
+	}
+
+	for _, td := range testCrossingData {
+		evs, err := lc.FindCrossing(context.Background(), *td.start, *td.end)
+		if err != nil {
+			t.Errorf("unexpected result in FindCrossing method: %v", err)
+		}
+
+		if len(evs) != len(td.ids) {
+			t.Errorf("unexpected count in FindCrossing method: %d, expected: %d", len(evs), len(td.ids))
+		}
+
+		for _, id := range td.ids {
+			found := false
+
+			for _, ev := range evs {
+				if ev.ID == id {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				t.Errorf("event %s not found in FindCrossing method, but should", id)
+			}
+		}
 	}
 }

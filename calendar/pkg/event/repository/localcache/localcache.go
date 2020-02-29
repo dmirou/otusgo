@@ -4,8 +4,20 @@ import (
 	"context"
 	"sync"
 
+	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
+	"github.com/dmirou/otusgo/calendar/pkg/time"
 )
+
+type TxMock struct{}
+
+func (tm *TxMock) Commit() error {
+	return nil
+}
+
+func (tm *TxMock) Rollback() error {
+	return nil
+}
 
 type LocalCache struct {
 	events map[event.ID]*event.Event
@@ -17,6 +29,10 @@ func New() *LocalCache {
 		events: make(map[event.ID]*event.Event),
 		mu:     new(sync.Mutex),
 	}
+}
+
+func (lc *LocalCache) Begin() (event.Transact, error) {
+	return &TxMock{}, nil
 }
 
 func (lc *LocalCache) Create(ctx context.Context, e *event.Event) error {
@@ -35,7 +51,7 @@ func (lc *LocalCache) GetByID(ctx context.Context, id event.ID) (*event.Event, e
 
 	e, ok := lc.events[id]
 	if !ok {
-		return nil, &event.NotFoundError{EventID: id}
+		return nil, &errors.EventNotFoundError{EventID: id}
 	}
 
 	ecopy := *e
@@ -49,7 +65,7 @@ func (lc *LocalCache) Update(ctx context.Context, e *event.Event) error {
 
 	actual, ok := lc.events[e.ID]
 	if !ok {
-		return &event.NotFoundError{EventID: e.ID}
+		return &errors.EventNotFoundError{EventID: e.ID}
 	}
 
 	if actual.Title != e.Title {
@@ -80,7 +96,7 @@ func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
 	defer lc.mu.Unlock()
 
 	if _, ok := lc.events[id]; !ok {
-		return &event.NotFoundError{EventID: id}
+		return &errors.EventNotFoundError{EventID: id}
 	}
 
 	delete(lc.events, id)
@@ -100,6 +116,21 @@ func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*
 
 		ecopy := *e
 		events = append(events, &ecopy)
+	}
+
+	return events, nil
+}
+
+func (lc *LocalCache) FindCrossing(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
+	lc.mu.Lock()
+	defer lc.mu.Unlock()
+
+	var events = make([]*event.Event, 0)
+	for _, e := range lc.events {
+		if e.Start.Inside(start, end) || e.End.Inside(start, end) {
+			ecopy := *e
+			events = append(events, &ecopy)
+		}
 	}
 
 	return events, nil
