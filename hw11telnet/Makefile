@@ -1,27 +1,51 @@
 PROJECT = github.com/dmirou/otusgo/hw11telnet
+BIN = gotelnet
+
 HAS_LINT := $(shell command -v golangci-lint;)
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
-all: vendor test lint
+GOOS ?= linux
+GOARCH ?= amd64
 
-vendor: bootstrap
+all: run
+
+run: build
 	@echo "+ $@"
-	@go mod tidy
+	bin/$(GOOS)-$(GOARCH)/$(BIN)
+
+build: clean lint compile
+
+clean:
+	@echo "+ $@"
+	@rm -f bin/$(GOOS)-$(GOARCH)/$(BIN)
+
+lint: bootstrap
+	@echo "+ $@"
+	@golangci-lint run ./...
 
 bootstrap:
 ifndef HAS_LINT
 	GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 endif
 
-test:
+compile: vendor
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
+	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo \
+			-o bin/$(GOOS)-$(GOARCH)/$(BIN) $(PROJECT)/cmd
 
-lint: bootstrap
+vendor: bootstrap
 	@echo "+ $@"
-	@golangci-lint run ./...
+	@go mod tidy
+
+demo: clean lint compile
+	@echo "+ $@"
+	bin/$(GOOS)-$(GOARCH)/$(BIN) google.com 80
 
 .PHONY: all \
+		clean \
+		compile \
+		demo \
+		run \
 		vendor \
 		bootstrap \
 		lint
