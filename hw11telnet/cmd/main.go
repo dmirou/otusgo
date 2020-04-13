@@ -46,6 +46,6 @@ func main() {
 	c := telnet.NewClient(host, port, dur)
 
 	if err := c.Run(); err != nil {
-		log.Fatalf("cannot run telnet client: %v", err)
+		log.Fatalf("unexpected error in telnet client: %v", err)
 	}
 }

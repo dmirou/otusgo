@@ -32,18 +32,17 @@ func NewClient(network, address string, timeout time.Duration) *Client {
 }
 
 func (c Client) Run() error {
-	ctx, _ := context.WithTimeout(context.Background(), c.timeout) // nolint: lostcancel
+	c.dialer.Timeout = c.timeout
 
-	conn, err := c.dialer.DialContext(
-		ctx,
-		"tcp",
-		fmt.Sprintf("%s:%s", c.network, c.address),
-	)
+	conn, err := c.dialer.Dial("tcp", fmt.Sprintf("%s:%s", c.network, c.address))
 	if err != nil {
 		return fmt.Errorf("cannot connect to the specified server: %v", err)
 	}
 
-	quit := make(chan struct{})
+	quit := make(chan struct{}, 2)
+
+	defer close(quit)
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	wg := &sync.WaitGroup{}
@@ -61,19 +60,22 @@ func (c Client) Run() error {
 
 	select {
 	case <-quit:
-		log.Printf("main quit received")
+		log.Printf("Run: quit received")
 	case <-sigChan:
-		log.Printf("main terminate signal received ")
+		log.Printf("Run: terminate signal received ")
 	}
 
-	log.Printf("main before cancel called")
+	if err := conn.Close(); err != nil {
+		return err
+	}
+	log.Printf("Run: connection closed")
+
 	cancel()
-	log.Printf("main after cancel called")
+	log.Printf("Run: context done")
 
 	wg.Wait()
 
-	conn.Close()
-	log.Printf("main connection closed")
+	log.Printf("Run: finished successfully")
 
 	return nil
 }
@@ -95,7 +97,7 @@ func (c Client) read(ctx context.Context, conn io.Reader, wg *sync.WaitGroup, qu
 
 		if !s.Scan() {
 			log.Println("read: cannot scan")
-			close(quit)
+			quit <- struct{}{}
 
 			return
 		}
@@ -125,14 +127,14 @@ func (c Client) write(ctx context.Context, conn io.Writer, wg *sync.WaitGroup, q
 
 		if err == io.EOF {
 			log.Println("write: eof received from stdin")
-			close(quit)
+			quit <- struct{}{}
 
-			continue
+			return
 		}
 
 		if err != nil {
 			log.Printf("write: cannot read from stdin: %v\n", err)
-			close(quit)
+			quit <- struct{}{}
 
 			return
 		}
@@ -140,7 +142,7 @@ func (c Client) write(ctx context.Context, conn io.Writer, wg *sync.WaitGroup, q
 		_, err = conn.Write([]byte(fmt.Sprintf("%s\n", text)))
 		if err != nil {
 			log.Printf("write: error: %v", err)
-			close(quit)
+			quit <- struct{}{}
 
 			return
 		}
