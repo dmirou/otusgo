@@ -84,10 +84,6 @@ func (lc *LocalCache) Update(ctx context.Context, e *event.Event) error {
 		actual.End = e.End
 	}
 
-	if actual.AllDay != e.AllDay {
-		actual.AllDay = e.AllDay
-	}
-
 	return nil
 }
 
