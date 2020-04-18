@@ -14,5 +14,5 @@ type Event struct {
 	Desc         string
 	Start        time.Time
 	End          time.Time
-	NotifyBefore time.Duration
+	NotifyBefore *time.Duration
 }
