@@ -18,9 +18,10 @@ func TestCreateEvent(t *testing.T) {
 	uc := New(repo)
 
 	e := &event.Event{
-		Title: "Breakfast",
-		Start: helper.NewTime(2020, 2, 29, 8, 30),
-		End:   helper.NewTime(2020, 2, 29, 8, 45),
+		UserID: event.UserID("1"),
+		Title:  "Breakfast",
+		Start:  helper.NewTime(2020, 2, 29, 8, 30),
+		End:    helper.NewTime(2020, 2, 29, 8, 45),
 	}
 
 	if err := uc.CreateEvent(context.Background(), e); err != nil {
@@ -46,7 +47,9 @@ func TestCreateEvent(t *testing.T) {
 	startBeforeEnd := *e
 	startBeforeEnd.Start, startBeforeEnd.End = startBeforeEnd.End, startBeforeEnd.Start
 
-	repo.FindCrossingFn = func(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
+	repo.FindCrossingFn = func(
+		ctx context.Context, userID event.UserID, start, end time.Time,
+	) ([]*event.Event, error) {
 		return []*event.Event{e}, nil
 	}
 	repo.ResetCalled()

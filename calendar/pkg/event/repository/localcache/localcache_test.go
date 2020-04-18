@@ -3,7 +3,6 @@ package localcache
 import (
 	"context"
 	goerrors "errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -17,8 +16,8 @@ var testData = map[event.ID]*event.Event{
 		ID:     "1",
 		UserID: "1",
 		Title:  "Daily meeting",
-		Start:  helper.NewTime(2020, 2, 15, 5, 00),
-		End:    helper.NewTime(2020, 2, 15, 5, 30),
+		Start:  helper.NewTime(2020, 2, 14, 5, 00),
+		End:    helper.NewTime(2020, 2, 14, 5, 30),
 	},
 	"2": {
 		ID:     "2",
@@ -48,53 +47,44 @@ var testData = map[event.ID]*event.Event{
 		Start:  helper.NewTime(2020, 2, 19, 2, 00),
 		End:    helper.NewTime(2020, 2, 19, 2, 30),
 	},
+	"6": {
+		ID:     "6",
+		UserID: "1",
+		Title:  "Learning English",
+		Start:  helper.NewTime(2020, 2, 22, 2, 00),
+		End:    helper.NewTime(2020, 2, 22, 2, 30),
+	},
+	"7": {
+		ID:     "7",
+		UserID: "1",
+		Title:  "Golang course",
+		Start:  helper.NewTime(2020, 3, 5, 2, 00),
+		End:    helper.NewTime(2020, 2, 5, 2, 30),
+	},
+	"8": {
+		ID:     "8",
+		UserID: "1",
+		Title:  "Running",
+		Start:  helper.NewTime(2020, 3, 15, 5, 00),
+		End:    helper.NewTime(2020, 2, 15, 5, 30),
+	},
 }
 
 var testDataByDate = []struct {
-	year  int
-	month int
-	day   int
-	ids   []event.ID
+	date time.Time
+	ids  []event.ID
 }{
 	{
-		2020,
-		2,
-		15,
-		[]event.ID{"1", "2"},
-	},
-	{
-		2020,
-		2,
-		18,
-		[]event.ID{"3", "4"},
-	},
-	{
-		2020,
-		2,
-		19,
-		[]event.ID{"5"},
-	},
-}
-
-var testCrossingData = []struct {
-	start time.Time
-	end   time.Time
-	ids   []event.ID
-}{
-	{
-		helper.NewTime(2020, 2, 15, 5, 15),
-		helper.NewTime(2020, 2, 15, 5, 45),
-		[]event.ID{"1"},
-	},
-	{
-		helper.NewTime(2020, 2, 15, 6, 00),
-		helper.NewTime(2020, 2, 15, 7, 30),
+		helper.NewDate(2020, 2, 15),
 		[]event.ID{"2"},
 	},
 	{
-		helper.NewTime(2020, 2, 18, 1, 30),
-		helper.NewTime(2020, 2, 18, 2, 30),
-		[]event.ID{},
+		helper.NewDate(2020, 2, 18),
+		[]event.ID{"3", "4"},
+	},
+	{
+		helper.NewDate(2020, 2, 19),
+		[]event.ID{"5"},
 	},
 }
 
@@ -209,13 +199,9 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	lc := New()
 
-	t.Logf("%v", lc)
-
 	if err := fill(lc); err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
-
-	t.Logf("%v", lc)
 
 	var count int
 
@@ -258,11 +244,9 @@ func TestFindByDate(t *testing.T) {
 	}
 
 	for _, td := range testDataByDate {
-		date := fmt.Sprintf("%d-%d-%d", td.year, td.month, td.day)
-
-		evs, err := lc.FindByDate(context.Background(), userID, td.year, td.month, td.day)
+		evs, err := lc.FindByDate(context.Background(), userID, td.date)
 		if err != nil {
-			t.Errorf("unexpected result in FindByDate method: %v, date: %s", err, date)
+			t.Errorf("unexpected result in FindByDate method: %v, date: %s", err, td.date)
 		}
 
 		if len(evs) != len(td.ids) {
@@ -285,9 +269,9 @@ func TestFindByDate(t *testing.T) {
 		}
 	}
 
-	free := fmt.Sprintf("%d-%d-%d", 2000, 1, 2)
+	free := helper.NewDate(2000, 1, 2)
 
-	evs, err := lc.FindByDate(context.Background(), userID, 2000, 1, 2)
+	evs, err := lc.FindByDate(context.Background(), userID, free)
 	if err != nil {
 		t.Errorf("unexpected result in FindByDate method: %v, date: %s", err, free)
 	}
@@ -295,6 +279,115 @@ func TestFindByDate(t *testing.T) {
 	if len(evs) != 0 {
 		t.Errorf("unexpected count in FindByDate method: %d, expected: %d", len(evs), 0)
 	}
+}
+
+var testInsideData = []struct {
+	start time.Time
+	d     time.Duration
+	ids   []event.ID
+}{
+	{
+		helper.NewDate(2020, 2, 1),
+		helper.Week,
+		[]event.ID{},
+	},
+	{
+		helper.NewDate(2020, 2, 8),
+		helper.Week,
+		[]event.ID{"1"},
+	},
+	{
+		helper.NewDate(2020, 2, 15),
+		helper.Week,
+		[]event.ID{"2", "3", "4", "5"},
+	},
+	{
+		helper.NewDate(2020, 2, 22),
+		helper.Week,
+		[]event.ID{"6"},
+	},
+	{
+		helper.NewDate(2020, 4, 1),
+		helper.Week,
+		[]event.ID{},
+	},
+	{
+		helper.NewDate(2020, 1, 1),
+		helper.Month,
+		[]event.ID{},
+	},
+	{
+		helper.NewDate(2020, 2, 1),
+		helper.Month,
+		[]event.ID{"1", "2", "3", "4", "5", "6"},
+	},
+	{
+		helper.NewDate(2020, 3, 1),
+		helper.Month,
+		[]event.ID{"7", "8"},
+	},
+	{
+		helper.NewDate(2020, 4, 1),
+		helper.Month,
+		[]event.ID{},
+	},
+}
+
+func TestFindInside(t *testing.T) {
+	userID := event.UserID("1")
+	lc := New()
+
+	if err := fill(lc); err != nil {
+		t.Fatalf("unexpected result in fill method: %v", err)
+	}
+
+	for _, td := range testInsideData {
+		evs, err := lc.FindInside(context.Background(), userID, td.start, td.d)
+		if err != nil {
+			t.Errorf("unexpected result in FindInside method: %v", err)
+		}
+
+		if len(evs) != len(td.ids) {
+			t.Errorf("unexpected count in FindInside method: %d, expected: %d", len(evs), len(td.ids))
+		}
+
+		for _, id := range td.ids {
+			found := false
+
+			for _, ev := range evs {
+				if ev.ID == id {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				t.Errorf("event %s not found in FindInside method, but should", id)
+			}
+		}
+	}
+}
+
+var testCrossingData = []struct {
+	start time.Time
+	end   time.Time
+	ids   []event.ID
+}{
+	{
+		helper.NewTime(2020, 2, 14, 5, 15),
+		helper.NewTime(2020, 2, 14, 5, 45),
+		[]event.ID{"1"},
+	},
+	{
+		helper.NewTime(2020, 2, 15, 6, 00),
+		helper.NewTime(2020, 2, 15, 7, 30),
+		[]event.ID{"2"},
+	},
+	{
+		helper.NewTime(2020, 2, 18, 1, 30),
+		helper.NewTime(2020, 2, 18, 2, 30),
+		[]event.ID{},
+	},
 }
 
 func TestFindCrossing(t *testing.T) {

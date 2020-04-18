@@ -34,10 +34,26 @@ type Mock struct {
 	DeleteFn     func(ctx context.Context, id event.ID) error
 
 	FindByDateCalled bool
-	FindByDateFn     func(ctx context.Context, year, month, day int) ([]*event.Event, error)
+	FindByDateFn     func(
+		ctx context.Context,
+		userID event.UserID,
+		date time.Time,
+	) ([]*event.Event, error)
+
+	FindInsideCalled bool
+	FindInsideFn     func(
+		ctx context.Context,
+		userID event.UserID,
+		start time.Time,
+		d time.Duration,
+	) ([]*event.Event, error)
 
 	FindCrossingCalled bool
-	FindCrossingFn     func(ctx context.Context, start, end time.Time) ([]*event.Event, error)
+	FindCrossingFn     func(
+		ctx context.Context,
+		userID event.UserID,
+		start, end time.Time,
+	) ([]*event.Event, error)
 }
 
 func New() *Mock {
@@ -57,10 +73,19 @@ func New() *Mock {
 	m.DeleteFn = func(ctx context.Context, id event.ID) error {
 		return nil
 	}
-	m.FindByDateFn = func(ctx context.Context, year, month, day int) ([]*event.Event, error) {
+	m.FindByDateFn = func(
+		ctx context.Context, userID event.UserID, date time.Time,
+	) ([]*event.Event, error) {
 		return []*event.Event{}, nil
 	}
-	m.FindCrossingFn = func(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
+	m.FindInsideFn = func(
+		ctx context.Context, userID event.UserID, start time.Time, d time.Duration,
+	) ([]*event.Event, error) {
+		return []*event.Event{}, nil
+	}
+	m.FindCrossingFn = func(
+		ctx context.Context, userID event.UserID, start, end time.Time,
+	) ([]*event.Event, error) {
 		return []*event.Event{}, nil
 	}
 
@@ -107,14 +132,33 @@ func (m *Mock) Delete(ctx context.Context, id event.ID) error {
 	return m.DeleteFn(ctx, id)
 }
 
-func (m *Mock) FindByDate(ctx context.Context, userID event.UserID, year, month, day int) ([]*event.Event, error) {
+func (m *Mock) FindByDate(
+	ctx context.Context,
+	userID event.UserID,
+	date time.Time,
+) ([]*event.Event, error) {
 	m.FindByDateCalled = true
 
-	return m.FindByDateFn(ctx, year, month, day)
+	return m.FindByDateFn(ctx, userID, date)
 }
 
-func (m *Mock) FindCrossing(ctx context.Context, userID event.UserID, start, end time.Time) ([]*event.Event, error) {
+func (m *Mock) FindInside(
+	ctx context.Context,
+	userID event.UserID,
+	start time.Time,
+	d time.Duration,
+) ([]*event.Event, error) {
+	m.FindInsideCalled = true
+
+	return m.FindInsideFn(ctx, userID, start, d)
+}
+
+func (m *Mock) FindCrossing(
+	ctx context.Context,
+	userID event.UserID,
+	start, end time.Time,
+) ([]*event.Event, error) {
 	m.FindCrossingCalled = true
 
-	return m.FindCrossingFn(ctx, start, end)
+	return m.FindCrossingFn(ctx, userID, start, end)
 }

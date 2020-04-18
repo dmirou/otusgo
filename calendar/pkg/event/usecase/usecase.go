@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
@@ -48,6 +49,14 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
+	if e.UserID == event.UserID("") {
+		return &errors.InvalidArgError{
+			Name:   "e",
+			Method: "CreateEvent",
+			Desc:   "event userID should be not empty",
+		}
+	}
+
 	if e.Title == "" {
 		return &errors.InvalidArgError{
 			Name:   "e",
@@ -64,7 +73,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	if !helper.HasDate(e.Start, e.End.Year(), int(e.End.Month()), e.End.Day()) {
+	if !helper.HasDate(e.Start, e.End) {
 		return &errors.InvalidArgError{
 			Name:   "e",
 			Method: "CreateEvent",
@@ -115,6 +124,26 @@ func (uc *UseCase) DeleteEvent(ctx context.Context, id event.ID) error {
 	return uc.repo.Delete(ctx, id)
 }
 
-func (uc *UseCase) ListEventsByDate(ctx context.Context, userID event.UserID, year, month, day int) ([]*event.Event, error) {
-	return uc.repo.FindByDate(ctx, userID, year, month, day)
+func (uc *UseCase) ListEventsPerDate(
+	ctx context.Context,
+	userID event.UserID,
+	date time.Time,
+) ([]*event.Event, error) {
+	return uc.repo.FindByDate(ctx, userID, date)
+}
+
+func (uc *UseCase) ListEventsPerWeek(
+	ctx context.Context,
+	userID event.UserID,
+	start time.Time,
+) ([]*event.Event, error) {
+	return uc.repo.FindInside(ctx, userID, start, helper.Week)
+}
+
+func (uc *UseCase) ListEventsPerMonth(
+	ctx context.Context,
+	userID event.UserID,
+	start time.Time,
+) ([]*event.Event, error) {
+	return uc.repo.FindInside(ctx, userID, start, helper.Month)
 }

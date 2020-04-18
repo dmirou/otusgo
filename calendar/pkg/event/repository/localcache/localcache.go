@@ -104,9 +104,7 @@ func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
 func (lc *LocalCache) FindByDate(
 	ctx context.Context,
 	userID event.UserID,
-	year,
-	month,
-	day int,
+	date time.Time,
 ) ([]*event.Event, error) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
@@ -117,7 +115,35 @@ func (lc *LocalCache) FindByDate(
 			continue
 		}
 
-		if !helper.HasDate(e.Start, year, month, day) {
+		if !helper.HasDate(e.Start, date) {
+			continue
+		}
+
+		ecopy := *e
+		events = append(events, &ecopy)
+	}
+
+	return events, nil
+}
+
+func (lc *LocalCache) FindInside(
+	ctx context.Context,
+	userID event.UserID,
+	start time.Time,
+	d time.Duration,
+) ([]*event.Event, error) {
+	lc.mu.Lock()
+	defer lc.mu.Unlock()
+
+	end := start.Add(d)
+
+	var events = make([]*event.Event, 0)
+	for _, e := range lc.events {
+		if e.UserID != userID {
+			continue
+		}
+
+		if !helper.TimeInsideOrEqual(e.Start, start, end) {
 			continue
 		}
 

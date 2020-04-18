@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"time"
 )
 
 type UseCase interface {
@@ -9,5 +10,7 @@ type UseCase interface {
 	GetEventByID(ctx context.Context, id ID) (*Event, error)
 	UpdateEvent(ctx context.Context, e *Event) error
 	DeleteEvent(ctx context.Context, id ID) error
-	ListEventsByDate(ctx context.Context, userID UserID, year, month, day int) ([]*Event, error)
+	ListEventsPerDate(ctx context.Context, userID UserID, date time.Time) ([]*Event, error)
+	ListEventsPerWeek(ctx context.Context, userID UserID, start time.Time) ([]*Event, error)
+	ListEventsPerMonth(ctx context.Context, userID UserID, start time.Time) ([]*Event, error)
 }
