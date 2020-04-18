@@ -1,2 +1,8 @@
 # otusgo
-The repository to store project during learning course about golang in OTUS company. https://otus.ru/lessons/razrabotchik-golang/
+
+The repository to store project during golang learning course in OTUS company.
+
+## Links
+
+- Course landing https://otus.ru/lessons/razrabotchik-golang/
+- OTUS Golang github repository https://github.com/OtusGolang
