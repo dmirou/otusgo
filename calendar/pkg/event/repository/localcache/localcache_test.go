@@ -5,42 +5,48 @@ import (
 	goerrors "errors"
 	"fmt"
 	"testing"
+	"time"
 
 	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
-	"github.com/dmirou/otusgo/calendar/pkg/time"
+	"github.com/dmirou/otusgo/calendar/pkg/helper"
 )
 
 var testData = map[event.ID]*event.Event{
 	"1": {
-		ID:    "1",
-		Title: "Daily meeting",
-		Start: time.New(2020, 2, 15, 5, 00),
-		End:   time.New(2020, 2, 15, 5, 30),
+		ID:     "1",
+		UserID: "1",
+		Title:  "Daily meeting",
+		Start:  helper.NewTime(2020, 2, 15, 5, 00),
+		End:    helper.NewTime(2020, 2, 15, 5, 30),
 	},
 	"2": {
-		ID:    "2",
-		Title: "Lunch",
-		Start: time.New(2020, 2, 15, 7, 00),
-		End:   time.New(2020, 2, 15, 8, 00),
+		ID:     "2",
+		UserID: "1",
+		Title:  "Lunch",
+		Start:  helper.NewTime(2020, 2, 15, 7, 00),
+		End:    helper.NewTime(2020, 2, 15, 8, 00),
 	},
 	"3": {
-		ID:    "3",
-		Title: "Running",
-		Start: time.New(2020, 2, 18, 0, 00),
-		End:   time.New(2020, 2, 18, 0, 15),
+		ID:     "3",
+		UserID: "1",
+		Title:  "Running",
+		Start:  helper.NewTime(2020, 2, 18, 0, 00),
+		End:    helper.NewTime(2020, 2, 18, 0, 15),
 	},
 	"4": {
-		ID:    "4",
-		Title: "OTUS webinar",
-		Start: time.New(2020, 2, 18, 15, 00),
-		End:   time.New(2020, 2, 18, 18, 00),
+		ID:     "4",
+		UserID: "1",
+		Title:  "OTUS webinar",
+		Start:  helper.NewTime(2020, 2, 18, 15, 00),
+		End:    helper.NewTime(2020, 2, 18, 18, 00),
 	},
 	"5": {
-		ID:    "5",
-		Title: "Learning English",
-		Start: time.New(2020, 2, 19, 2, 00),
-		End:   time.New(2020, 2, 19, 2, 30),
+		ID:     "5",
+		UserID: "1",
+		Title:  "Learning English",
+		Start:  helper.NewTime(2020, 2, 19, 2, 00),
+		End:    helper.NewTime(2020, 2, 19, 2, 30),
 	},
 }
 
@@ -71,23 +77,23 @@ var testDataByDate = []struct {
 }
 
 var testCrossingData = []struct {
-	start *time.Time
-	end   *time.Time
+	start time.Time
+	end   time.Time
 	ids   []event.ID
 }{
 	{
-		time.New(2020, 2, 15, 5, 15),
-		time.New(2020, 2, 15, 5, 45),
+		helper.NewTime(2020, 2, 15, 5, 15),
+		helper.NewTime(2020, 2, 15, 5, 45),
 		[]event.ID{"1"},
 	},
 	{
-		time.New(2020, 2, 15, 6, 00),
-		time.New(2020, 2, 15, 7, 30),
+		helper.NewTime(2020, 2, 15, 6, 00),
+		helper.NewTime(2020, 2, 15, 7, 30),
 		[]event.ID{"2"},
 	},
 	{
-		time.New(2020, 2, 18, 1, 30),
-		time.New(2020, 2, 18, 2, 30),
+		helper.NewTime(2020, 2, 18, 1, 30),
+		helper.NewTime(2020, 2, 18, 2, 30),
 		[]event.ID{},
 	},
 }
@@ -298,7 +304,7 @@ func TestFindCrossing(t *testing.T) {
 	}
 
 	for _, td := range testCrossingData {
-		evs, err := lc.FindCrossing(context.Background(), *td.start, *td.end)
+		evs, err := lc.FindCrossing(context.Background(), td.start, td.end)
 		if err != nil {
 			t.Errorf("unexpected result in FindCrossing method: %v", err)
 		}

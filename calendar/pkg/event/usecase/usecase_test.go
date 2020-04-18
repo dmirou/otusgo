@@ -4,11 +4,12 @@ import (
 	"context"
 	goerrors "errors"
 	"testing"
+	"time"
 
 	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
 	"github.com/dmirou/otusgo/calendar/pkg/event/repository/mock"
-	"github.com/dmirou/otusgo/calendar/pkg/time"
+	"github.com/dmirou/otusgo/calendar/pkg/helper"
 )
 
 // nolint: funlen
@@ -18,8 +19,8 @@ func TestCreateEvent(t *testing.T) {
 
 	e := &event.Event{
 		Title: "Breakfast",
-		Start: time.New(2020, 2, 29, 8, 30),
-		End:   time.New(2020, 2, 29, 8, 45),
+		Start: helper.NewTime(2020, 2, 29, 8, 30),
+		End:   helper.NewTime(2020, 2, 29, 8, 45),
 	}
 
 	if err := uc.CreateEvent(context.Background(), e); err != nil {
@@ -42,26 +43,8 @@ func TestCreateEvent(t *testing.T) {
 		t.Errorf("unexpected error in CreateEvent: %v", err)
 	}
 
-	eventWoStart := *e
-	eventWoStart.Start = nil
-
-	if err := uc.CreateEvent(context.Background(), &eventWoStart); !goerrors.As(err, &expected) {
-		t.Errorf("unexpected error in CreateEvent: %v", err)
-	}
-
-	eventWoEnd := *e
-	eventWoEnd.End = nil
-
-	if err := uc.CreateEvent(context.Background(), &eventWoEnd); !goerrors.As(err, &expected) {
-		t.Errorf("unexpected error in CreateEvent: %v", err)
-	}
-
 	startBeforeEnd := *e
 	startBeforeEnd.Start, startBeforeEnd.End = startBeforeEnd.End, startBeforeEnd.Start
-
-	if err := uc.CreateEvent(context.Background(), &eventWoEnd); !goerrors.As(err, &expected) {
-		t.Errorf("unexpected error in CreateEvent: %v", err)
-	}
 
 	repo.FindCrossingFn = func(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
 		return []*event.Event{e}, nil

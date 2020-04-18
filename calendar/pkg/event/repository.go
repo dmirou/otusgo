@@ -2,8 +2,7 @@ package event
 
 import (
 	"context"
-
-	"github.com/dmirou/otusgo/calendar/pkg/time"
+	"time"
 )
 
 type Repository interface {

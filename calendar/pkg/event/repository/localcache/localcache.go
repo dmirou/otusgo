@@ -3,10 +3,11 @@ package localcache
 import (
 	"context"
 	"sync"
+	"time"
 
 	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
-	"github.com/dmirou/otusgo/calendar/pkg/time"
+	"github.com/dmirou/otusgo/calendar/pkg/helper"
 )
 
 type TxMock struct{}
@@ -106,7 +107,7 @@ func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*
 
 	var events = make([]*event.Event, 0)
 	for _, e := range lc.events {
-		if !e.Start.HasDate(year, month, day) {
+		if !helper.HasDate(e.Start, year, month, day) {
 			continue
 		}
 
@@ -123,7 +124,7 @@ func (lc *LocalCache) FindCrossing(ctx context.Context, start, end time.Time) ([
 
 	var events = make([]*event.Event, 0)
 	for _, e := range lc.events {
-		if e.Start.Inside(start, end) || e.End.Inside(start, end) {
+		if helper.TimeInside(e.Start, start, end) || helper.TimeInside(e.End, start, end) {
 			ecopy := *e
 			events = append(events, &ecopy)
 		}

@@ -2,9 +2,9 @@ package error
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/dmirou/otusgo/calendar/pkg/event"
-	"github.com/dmirou/otusgo/calendar/pkg/time"
 )
 
 type InvalidArgError struct {
@@ -26,8 +26,8 @@ func (enf *EventNotFoundError) Error() string {
 }
 
 type DateBusyError struct {
-	Start *time.Time
-	End   *time.Time
+	Start time.Time
+	End   time.Time
 }
 
 func (db *DateBusyError) Error() string {

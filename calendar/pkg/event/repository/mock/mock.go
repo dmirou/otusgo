@@ -2,9 +2,9 @@ package mock
 
 import (
 	"context"
+	"time"
 
 	"github.com/dmirou/otusgo/calendar/pkg/event"
-	"github.com/dmirou/otusgo/calendar/pkg/time"
 )
 
 type TxMock struct{}

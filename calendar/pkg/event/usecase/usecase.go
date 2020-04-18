@@ -5,6 +5,7 @@ import (
 
 	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
+	"github.com/dmirou/otusgo/calendar/pkg/helper"
 )
 
 type UseCase struct {
@@ -55,23 +56,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	if e.Start == nil {
-		return &errors.InvalidArgError{
-			Name:   "e",
-			Method: "CreateEvent",
-			Desc:   "event start date should be not empty",
-		}
-	}
-
-	if e.End == nil {
-		return &errors.InvalidArgError{
-			Name:   "e",
-			Method: "CreateEvent",
-			Desc:   "event end date should be not empty",
-		}
-	}
-
-	if e.Start.After(*e.End) {
+	if e.Start.After(e.End) {
 		return &errors.InvalidArgError{
 			Name:   "e",
 			Method: "CreateEvent",
@@ -79,7 +64,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	if !e.Start.HasDate(e.End.Year(), e.End.Month(), e.End.Day()) {
+	if !helper.HasDate(e.Start, e.End.Year(), int(e.End.Month()), e.End.Day()) {
 		return &errors.InvalidArgError{
 			Name:   "e",
 			Method: "CreateEvent",
@@ -87,7 +72,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	events, err := uc.repo.FindCrossing(ctx, *e.Start, *e.End)
+	events, err := uc.repo.FindCrossing(ctx, e.Start, e.End)
 	if err != nil {
 		return err
 	}
