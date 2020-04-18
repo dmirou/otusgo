@@ -11,8 +11,8 @@ type Repository interface {
 	GetByID(ctx context.Context, id ID) (*Event, error)
 	Update(ctx context.Context, e *Event) error
 	Delete(ctx context.Context, id ID) error
-	FindByDate(ctx context.Context, year, month, day int) ([]*Event, error)
-	FindCrossing(ctx context.Context, start, end time.Time) ([]*Event, error)
+	FindByDate(ctx context.Context, userID UserID, year, month, day int) ([]*Event, error)
+	FindCrossing(ctx context.Context, userID UserID, start, end time.Time) ([]*Event, error)
 }
 
 type Transact interface {

@@ -107,13 +107,13 @@ func (m *Mock) Delete(ctx context.Context, id event.ID) error {
 	return m.DeleteFn(ctx, id)
 }
 
-func (m *Mock) FindByDate(ctx context.Context, year, month, day int) ([]*event.Event, error) {
+func (m *Mock) FindByDate(ctx context.Context, userID event.UserID, year, month, day int) ([]*event.Event, error) {
 	m.FindByDateCalled = true
 
 	return m.FindByDateFn(ctx, year, month, day)
 }
 
-func (m *Mock) FindCrossing(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
+func (m *Mock) FindCrossing(ctx context.Context, userID event.UserID, start, end time.Time) ([]*event.Event, error) {
 	m.FindCrossingCalled = true
 
 	return m.FindCrossingFn(ctx, start, end)

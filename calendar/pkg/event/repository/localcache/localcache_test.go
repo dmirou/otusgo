@@ -250,6 +250,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestFindByDate(t *testing.T) {
+	userID := event.UserID("1")
 	lc := New()
 
 	if err := fill(lc); err != nil {
@@ -259,7 +260,7 @@ func TestFindByDate(t *testing.T) {
 	for _, td := range testDataByDate {
 		date := fmt.Sprintf("%d-%d-%d", td.year, td.month, td.day)
 
-		evs, err := lc.FindByDate(context.Background(), td.year, td.month, td.day)
+		evs, err := lc.FindByDate(context.Background(), userID, td.year, td.month, td.day)
 		if err != nil {
 			t.Errorf("unexpected result in FindByDate method: %v, date: %s", err, date)
 		}
@@ -286,7 +287,7 @@ func TestFindByDate(t *testing.T) {
 
 	free := fmt.Sprintf("%d-%d-%d", 2000, 1, 2)
 
-	evs, err := lc.FindByDate(context.Background(), 2000, 1, 2)
+	evs, err := lc.FindByDate(context.Background(), userID, 2000, 1, 2)
 	if err != nil {
 		t.Errorf("unexpected result in FindByDate method: %v, date: %s", err, free)
 	}
@@ -297,6 +298,7 @@ func TestFindByDate(t *testing.T) {
 }
 
 func TestFindCrossing(t *testing.T) {
+	userID := event.UserID("1")
 	lc := New()
 
 	if err := fill(lc); err != nil {
@@ -304,7 +306,7 @@ func TestFindCrossing(t *testing.T) {
 	}
 
 	for _, td := range testCrossingData {
-		evs, err := lc.FindCrossing(context.Background(), td.start, td.end)
+		evs, err := lc.FindCrossing(context.Background(), userID, td.start, td.end)
 		if err != nil {
 			t.Errorf("unexpected result in FindCrossing method: %v", err)
 		}

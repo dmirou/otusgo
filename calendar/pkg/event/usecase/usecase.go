@@ -72,7 +72,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	events, err := uc.repo.FindCrossing(ctx, e.Start, e.End)
+	events, err := uc.repo.FindCrossing(ctx, e.UserID, e.Start, e.End)
 	if err != nil {
 		return err
 	}
@@ -115,6 +115,6 @@ func (uc *UseCase) DeleteEvent(ctx context.Context, id event.ID) error {
 	return uc.repo.Delete(ctx, id)
 }
 
-func (uc *UseCase) ListEventsByDate(ctx context.Context, year, month, day int) ([]*event.Event, error) {
-	return uc.repo.FindByDate(ctx, year, month, day)
+func (uc *UseCase) ListEventsByDate(ctx context.Context, userID event.UserID, year, month, day int) ([]*event.Event, error) {
+	return uc.repo.FindByDate(ctx, userID, year, month, day)
 }

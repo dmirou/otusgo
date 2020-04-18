@@ -101,12 +101,22 @@ func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
 	return nil
 }
 
-func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*event.Event, error) {
+func (lc *LocalCache) FindByDate(
+	ctx context.Context,
+	userID event.UserID,
+	year,
+	month,
+	day int,
+) ([]*event.Event, error) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
 	var events = make([]*event.Event, 0)
 	for _, e := range lc.events {
+		if e.UserID != userID {
+			continue
+		}
+
 		if !helper.HasDate(e.Start, year, month, day) {
 			continue
 		}
@@ -118,12 +128,21 @@ func (lc *LocalCache) FindByDate(ctx context.Context, year, month, day int) ([]*
 	return events, nil
 }
 
-func (lc *LocalCache) FindCrossing(ctx context.Context, start, end time.Time) ([]*event.Event, error) {
+func (lc *LocalCache) FindCrossing(
+	ctx context.Context,
+	userID event.UserID,
+	start,
+	end time.Time,
+) ([]*event.Event, error) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
 	var events = make([]*event.Event, 0)
 	for _, e := range lc.events {
+		if e.UserID != userID {
+			continue
+		}
+
 		if helper.TimeInside(e.Start, start, end) || helper.TimeInside(e.End, start, end) {
 			ecopy := *e
 			events = append(events, &ecopy)
