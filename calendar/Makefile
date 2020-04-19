@@ -39,7 +39,11 @@ test:
 	@echo "+ $@"
 	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
-lint: bootstrap
+fmt:
+	@echo "+ $@"
+	@gofmt -w ./pkg/
+
+lint: bootstrap fmt
 	@echo "+ $@"
 	@golangci-lint run ./...
 
@@ -49,7 +53,7 @@ build: vendor test lint
 
 run: build
 	@echo "+ $@"
-	@bin/$(BIN)
+	@bin/$(BIN) --config ./config/default.config
 
 .PHONY: all \
 		bootstrap \
