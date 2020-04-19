@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"github.com/dmirou/otusgo/calendar/pkg/config"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
 	"github.com/dmirou/otusgo/calendar/pkg/event/repository/localcache"
 	"github.com/dmirou/otusgo/calendar/pkg/event/usecase"
-	"github.com/dmirou/otusgo/calendar/pkg/version"
+	"github.com/dmirou/otusgo/calendar/pkg/server"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -90,45 +92,28 @@ func makeLogger(cfg *config.Config) (*zap.Logger, error) {
 }
 
 func (a *App) Run() {
-	hello := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, I am calendar!")
-	}
+	is := server.NewInfoServer(a.cfg, a.logger)
 
-	ver := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(
-			w,
-			"%s-%s-%s-%s-%s",
-			version.REPO,
-			version.RELEASE,
-			version.BRANCH,
-			version.COMMIT,
-			version.DATE,
-		)
-	}
+	// Run info server
+	go func() {
+		if err := is.Run(); err != nil {
+			// Check for known errors
+			if err != http.ErrServerClosed {
+				a.logger.Fatal(err.Error())
+			}
+			// Normal shutdown
+			a.logger.Info(err.Error())
+		}
+	}()
 
-	middleware := func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			a.logger.Debug(
-				"request received",
-				zap.String("remoteAddr", r.RemoteAddr),
-				zap.String("method", r.Method),
-				zap.Any("URL", r.URL),
-			)
-			handler.ServeHTTP(w, r)
-		})
-	}
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/version", ver)
+	<-sigChan
 
-	fmt.Printf("listening on %v:%v\n", a.cfg.Server.IP, a.cfg.Server.Port)
-	fmt.Printf("logging to %v\n", a.cfg.Log.File)
+	a.logger.Info("terminate signal received")
 
-	err := http.ListenAndServe(
-		fmt.Sprintf("%s:%d", a.cfg.Server.IP, a.cfg.Server.Port),
-		middleware(http.DefaultServeMux),
-	)
-	if err != nil {
-		a.logger.Fatal("unexpected error in ListenAndServe", zap.Error(err))
-	}
+	is.Shutdown()
+
+	a.logger.Info("application finished")
 }
