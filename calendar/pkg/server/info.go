@@ -58,8 +58,8 @@ func (is *InfoServer) Run() error {
 	router.HandleFunc("/hello", logging(hello))
 	router.HandleFunc("/version", logging(ver))
 
-	fmt.Printf("listening on %v:%v\n", is.cfg.Server.IP, is.cfg.Server.Port)
-	fmt.Printf("logging to %v\n", is.cfg.Log.File)
+	fmt.Printf("info server listens on %v:%v\n", is.cfg.Server.IP, is.cfg.Server.Port)
+	fmt.Printf("info server logs to %v\n", is.cfg.Log.File)
 
 	is.server = &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", is.cfg.Server.IP, is.cfg.Server.Port),

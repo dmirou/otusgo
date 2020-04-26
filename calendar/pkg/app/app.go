@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +16,7 @@ import (
 	"github.com/dmirou/otusgo/calendar/pkg/server"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 type App struct {
@@ -44,8 +46,6 @@ func New(configPath string) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	defer l.Sync() // nolint: errcheck
 
 	return &App{euc: uc, cfg: &cfg, logger: l}, nil
 }
@@ -106,6 +106,20 @@ func (a *App) Run() {
 		}
 	}()
 
+	cs := server.NewCoreServer(a.cfg, a.logger)
+
+	// Run core server
+	go func() {
+		if err := cs.Run(); err != nil {
+			// Check for known errors
+			if err != grpc.ErrServerStopped {
+				a.logger.Fatal(err.Error())
+			}
+			// Normal shutdown
+			a.logger.Info(err.Error())
+		}
+	}()
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
@@ -114,6 +128,11 @@ func (a *App) Run() {
 	a.logger.Info("terminate signal received")
 
 	is.Shutdown()
+	cs.Shutdown()
 
 	a.logger.Info("application finished")
+
+	if err := a.logger.Sync(); err != nil {
+		log.Fatalf("unexpected error in logger.Sync: %v", err)
+	}
 }
