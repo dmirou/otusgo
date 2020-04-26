@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "github.com/dmirou/otusgo/calendar/pkg/contracts/event";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+import "request/request.proto";
+
+service EventService {
+    rpc CreateEvent (Event) returns (Event);
+    rpc GetEventByID (request.ByID) returns (Event);
+    rpc UpdateEvent (Event) returns (Event);
+    rpc DeleteEvent (request.ByID) returns (google.protobuf.Empty);
+    rpc ListEventsPerDate (request.ByDate) returns (ListEventsResponse);
+    rpc ListEventsPerWeek (request.ByDate) returns (ListEventsResponse);
+    rpc ListEventsPerMonth (request.ByDate) returns (ListEventsResponse);
+}
+
+message Event {
+    string id = 1;
+    string user_id = 2;
+    string title = 3;
+    string desc = 4;
+    google.protobuf.Timestamp start = 5;
+    google.protobuf.Timestamp end = 6;
+    google.protobuf.Duration notify_before = 7;
+}
+
+message ListEventsPerDateRequest {
+    google.protobuf.Timestamp date = 1;
+}
+
+message ListEventsResponse {
+    repeated Event events = 1;
+}

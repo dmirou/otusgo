@@ -4,6 +4,11 @@ BIN = calendar
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.10
+PROTOC_IMAGE ?= openprovider/protoc:v0.1.0
+
+PWD = $(shell pwd)
+PROTOC_RUN = docker run --rm -v $(PWD):/contracts -w /contracts \
+	-u $(shell id -u):$(shell id -g) $(PROTOC_IMAGE) -I./pkg/contracts/
 
 REPO_INFO=$(shell git config --get remote.origin.url)
 REPO_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -24,30 +29,39 @@ LDFLAGS = "-s -w \
 
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
-all: vendor lint test
+PROTOC="docker run --rm dmirou/protoc:0.1.1"
+
+all: build
+
+bootstrap:
+ifndef HAS_LINT
+	GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint@v1.20.0
+endif
 
 vendor: bootstrap
 	@echo "+ $@"
 	@go mod tidy
 
-bootstrap:
-ifndef HAS_LINT
-	GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-endif
+fmt:
+	@echo "+ $@"
+	@gofmt -w ./pkg/
 
 test:
 	@echo "+ $@"
 	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
 
-fmt:
-	@echo "+ $@"
-	@gofmt -w ./pkg/
-
 lint: bootstrap fmt
 	@echo "+ $@"
 	@golangci-lint run ./...
 
-build: vendor test lint
+contracts:
+	@echo "+ $@"
+	@$(PROTOC_RUN) --go_out=tag=true,plugins=grpc,paths=source_relative:./pkg/contracts/ \
+		./pkg/contracts/request/request.proto
+	@$(PROTOC_RUN) --go_out=tag=true,plugins=grpc,paths=source_relative:./pkg/contracts/ \
+		./pkg/contracts/event/event.proto
+
+build: contracts vendor lint test
 	@echo "+ $@"
 	@go build -a -ldflags $(LDFLAGS) -o bin/$(BIN) $(PROJECT)/cmd/calendar
 
@@ -58,6 +72,7 @@ run: build
 .PHONY: all \
 		bootstrap \
 		build \
+		contracts \
 		lint \
 		run \
 		vendor
