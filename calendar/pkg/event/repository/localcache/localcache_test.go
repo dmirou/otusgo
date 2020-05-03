@@ -11,59 +11,53 @@ import (
 	"github.com/dmirou/otusgo/calendar/pkg/helper"
 )
 
-var testData = map[event.ID]*event.Event{
-	"1": {
-		ID:     "1",
-		UserID: "1",
+var userID = "1"
+
+var testData = []*event.Event{
+	{
+		UserID: userID,
 		Title:  "Daily meeting",
 		Start:  helper.NewTime(2020, 2, 14, 5, 00),
 		End:    helper.NewTime(2020, 2, 14, 5, 30),
 	},
-	"2": {
-		ID:     "2",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Lunch",
 		Start:  helper.NewTime(2020, 2, 15, 7, 00),
 		End:    helper.NewTime(2020, 2, 15, 8, 00),
 	},
-	"3": {
-		ID:     "3",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Running",
 		Start:  helper.NewTime(2020, 2, 18, 0, 00),
 		End:    helper.NewTime(2020, 2, 18, 0, 15),
 	},
-	"4": {
-		ID:     "4",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "OTUS webinar",
 		Start:  helper.NewTime(2020, 2, 18, 15, 00),
 		End:    helper.NewTime(2020, 2, 18, 18, 00),
 	},
-	"5": {
-		ID:     "5",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Learning English",
 		Start:  helper.NewTime(2020, 2, 19, 2, 00),
 		End:    helper.NewTime(2020, 2, 19, 2, 30),
 	},
-	"6": {
-		ID:     "6",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Learning English",
 		Start:  helper.NewTime(2020, 2, 22, 2, 00),
 		End:    helper.NewTime(2020, 2, 22, 2, 30),
 	},
-	"7": {
-		ID:     "7",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Golang course",
 		Start:  helper.NewTime(2020, 3, 5, 2, 00),
 		End:    helper.NewTime(2020, 2, 5, 2, 30),
 	},
-	"8": {
-		ID:     "8",
-		UserID: "1",
+	{
+		UserID: userID,
 		Title:  "Running",
 		Start:  helper.NewTime(2020, 3, 15, 5, 00),
 		End:    helper.NewTime(2020, 2, 15, 5, 30),
@@ -72,25 +66,25 @@ var testData = map[event.ID]*event.Event{
 
 var testDataByDate = []struct {
 	date time.Time
-	ids  []event.ID
+	ids  []string
 }{
 	{
 		helper.NewDate(2020, 2, 15),
-		[]event.ID{"2"},
+		[]string{"2"},
 	},
 	{
 		helper.NewDate(2020, 2, 18),
-		[]event.ID{"3", "4"},
+		[]string{"3", "4"},
 	},
 	{
 		helper.NewDate(2020, 2, 19),
-		[]event.ID{"5"},
+		[]string{"5"},
 	},
 }
 
 func TestCreate(t *testing.T) {
 	lc := New()
-	e := testData["1"]
+	e := testData[0]
 
 	if err := lc.Create(context.Background(), e); err != nil {
 		t.Errorf("unexpected result from Create method: %v, event: %v", err, e)
@@ -104,7 +98,7 @@ func TestCreate(t *testing.T) {
 		t.Errorf("unexpected event created: %v, expected: %v", lc.events[e.ID], e)
 	}
 
-	e2 := testData["2"]
+	e2 := testData[1]
 
 	if err := lc.Create(context.Background(), e2); err != nil {
 		t.Errorf("unexpected result from Create method: %v, event: %v", err, e2)
@@ -126,12 +120,13 @@ func TestCreate(t *testing.T) {
 func TestGetByID(t *testing.T) {
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	ids, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 
-	for id := range testData {
-		e, err := lc.GetByID(context.Background(), id)
+	for _, id := range ids {
+		e, err := lc.GetByID(context.Background(), userID, id)
 		if err != nil {
 			t.Errorf("unexpected result from GetByID method: %v", err)
 			continue
@@ -143,11 +138,11 @@ func TestGetByID(t *testing.T) {
 		}
 	}
 
-	var nonexistent event.ID = "nonexistent id"
+	var nonexistent = "nonexistent id"
 
 	var expected = &errors.EventNotFoundError{EventID: nonexistent}
 
-	e, err := lc.GetByID(context.Background(), nonexistent)
+	e, err := lc.GetByID(context.Background(), userID, nonexistent)
 	if !goerrors.As(err, &expected) {
 		t.Errorf("unexpected error returned from GetByID: %v, expected %v", err, expected)
 	}
@@ -157,33 +152,38 @@ func TestGetByID(t *testing.T) {
 	}
 }
 
-func fill(lc *LocalCache) error {
-	for _, e := range testData {
+func fill(lc *LocalCache) ([]string, error) {
+	ids := make([]string, len(testData))
+
+	for key, e := range testData {
 		var ecopy = *e
 
 		if err := lc.Create(context.Background(), &ecopy); err != nil {
-			return err
+			return nil, err
 		}
+
+		ids[key] = ecopy.ID
 	}
 
-	return nil
+	return ids, nil
 }
 
 func TestUpdate(t *testing.T) {
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	ids, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 
-	e, _ := lc.GetByID(context.Background(), "1")
+	e, _ := lc.GetByID(context.Background(), userID, ids[0])
 	e.Title = "new event title"
 
 	if err := lc.Update(context.Background(), e); err != nil {
 		t.Fatalf("unexpected result in Update method: %v", err)
 	}
 
-	e2, _ := lc.GetByID(context.Background(), "1")
+	e2, _ := lc.GetByID(context.Background(), userID, ids[0])
 	if e2.Title != e.Title {
 		t.Fatalf("unexpected event title in Update method: %q, expected: %q", e2.Title, e.Title)
 	}
@@ -199,16 +199,17 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	ids, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 
 	var count int
 
-	for id := range testData {
+	for _, id := range ids {
 		count = len(lc.events)
 
-		if err := lc.Delete(context.Background(), id); err != nil {
+		if err := lc.Delete(context.Background(), userID, id); err != nil {
 			t.Errorf("unexpected result from Delete method: %v", err)
 			continue
 		}
@@ -225,21 +226,22 @@ func TestDelete(t *testing.T) {
 	}
 
 	var (
-		nonexistent event.ID = "nonexistent id"
-		expected             = &errors.EventNotFoundError{EventID: nonexistent}
+		nonexistent = "nonexistent id"
+		expected    = &errors.EventNotFoundError{EventID: nonexistent}
 	)
 
-	err := lc.Delete(context.Background(), nonexistent)
+	err = lc.Delete(context.Background(), userID, nonexistent)
 	if !goerrors.As(err, &expected) {
 		t.Errorf("unexpected error returned from Delete: %v, expected %v", err, expected)
 	}
 }
 
 func TestFindByDate(t *testing.T) {
-	userID := event.UserID("1")
+	userID := "1"
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	_, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 
@@ -284,60 +286,61 @@ func TestFindByDate(t *testing.T) {
 var testInsideData = []struct {
 	start time.Time
 	d     time.Duration
-	ids   []event.ID
+	ids   []string
 }{
 	{
 		helper.NewDate(2020, 2, 1),
 		helper.Week,
-		[]event.ID{},
+		[]string{},
 	},
 	{
 		helper.NewDate(2020, 2, 8),
 		helper.Week,
-		[]event.ID{"1"},
+		[]string{"1"},
 	},
 	{
 		helper.NewDate(2020, 2, 15),
 		helper.Week,
-		[]event.ID{"2", "3", "4", "5"},
+		[]string{"2", "3", "4", "5"},
 	},
 	{
 		helper.NewDate(2020, 2, 22),
 		helper.Week,
-		[]event.ID{"6"},
+		[]string{"6"},
 	},
 	{
 		helper.NewDate(2020, 4, 1),
 		helper.Week,
-		[]event.ID{},
+		[]string{},
 	},
 	{
 		helper.NewDate(2020, 1, 1),
 		helper.Month,
-		[]event.ID{},
+		[]string{},
 	},
 	{
 		helper.NewDate(2020, 2, 1),
 		helper.Month,
-		[]event.ID{"1", "2", "3", "4", "5", "6"},
+		[]string{"1", "2", "3", "4", "5", "6"},
 	},
 	{
 		helper.NewDate(2020, 3, 1),
 		helper.Month,
-		[]event.ID{"7", "8"},
+		[]string{"7", "8"},
 	},
 	{
 		helper.NewDate(2020, 4, 1),
 		helper.Month,
-		[]event.ID{},
+		[]string{},
 	},
 }
 
 func TestFindInside(t *testing.T) {
-	userID := event.UserID("1")
+	userID := "1"
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	_, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 
@@ -371,30 +374,31 @@ func TestFindInside(t *testing.T) {
 var testCrossingData = []struct {
 	start time.Time
 	end   time.Time
-	ids   []event.ID
+	ids   []string
 }{
 	{
 		helper.NewTime(2020, 2, 14, 5, 15),
 		helper.NewTime(2020, 2, 14, 5, 45),
-		[]event.ID{"1"},
+		[]string{"1"},
 	},
 	{
 		helper.NewTime(2020, 2, 15, 6, 00),
 		helper.NewTime(2020, 2, 15, 7, 30),
-		[]event.ID{"2"},
+		[]string{"2"},
 	},
 	{
 		helper.NewTime(2020, 2, 18, 1, 30),
 		helper.NewTime(2020, 2, 18, 2, 30),
-		[]event.ID{},
+		[]string{},
 	},
 }
 
 func TestFindCrossing(t *testing.T) {
-	userID := event.UserID("1")
+	userID := "1"
 	lc := New()
 
-	if err := fill(lc); err != nil {
+	_, err := fill(lc)
+	if err != nil {
 		t.Fatalf("unexpected result in fill method: %v", err)
 	}
 

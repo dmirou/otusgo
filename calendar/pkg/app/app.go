@@ -106,7 +106,7 @@ func (a *App) Run() {
 		}
 	}()
 
-	cs := server.NewCoreServer(a.cfg, a.logger)
+	cs := server.NewCoreServer(a.euc, a.cfg, a.logger)
 
 	// Run core server
 	go func() {

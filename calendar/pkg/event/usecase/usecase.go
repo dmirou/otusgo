@@ -49,7 +49,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 		}
 	}
 
-	if e.UserID == event.UserID("") {
+	if e.UserID == "" {
 		return &errors.InvalidArgError{
 			Name:   "e",
 			Method: "CreateEvent",
@@ -93,8 +93,10 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 	return nil
 }
 
-func (uc *UseCase) GetEventByID(ctx context.Context, id event.ID) (*event.Event, error) {
-	return uc.repo.GetByID(ctx, id)
+func (uc *UseCase) GetEventByID(ctx context.Context, userID, id string) (
+	*event.Event, error,
+) {
+	return uc.repo.GetByID(ctx, userID, id)
 }
 
 func (uc *UseCase) UpdateEvent(ctx context.Context, e *event.Event) error {
@@ -120,13 +122,13 @@ func (uc *UseCase) UpdateEvent(ctx context.Context, e *event.Event) error {
 	return nil
 }
 
-func (uc *UseCase) DeleteEvent(ctx context.Context, id event.ID) error {
-	return uc.repo.Delete(ctx, id)
+func (uc *UseCase) DeleteEvent(ctx context.Context, userID, id string) error {
+	return uc.repo.Delete(ctx, userID, id)
 }
 
 func (uc *UseCase) ListEventsPerDate(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	date time.Time,
 ) ([]*event.Event, error) {
 	return uc.repo.FindByDate(ctx, userID, date)
@@ -134,7 +136,7 @@ func (uc *UseCase) ListEventsPerDate(
 
 func (uc *UseCase) ListEventsPerWeek(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	start time.Time,
 ) ([]*event.Event, error) {
 	return uc.repo.FindInside(ctx, userID, start, helper.Week)
@@ -142,7 +144,7 @@ func (uc *UseCase) ListEventsPerWeek(
 
 func (uc *UseCase) ListEventsPerMonth(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	start time.Time,
 ) ([]*event.Event, error) {
 	return uc.repo.FindInside(ctx, userID, start, helper.Month)

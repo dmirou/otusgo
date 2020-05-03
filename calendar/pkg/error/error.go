@@ -3,8 +3,6 @@ package error
 import (
 	"fmt"
 	"time"
-
-	"github.com/dmirou/otusgo/calendar/pkg/event"
 )
 
 type InvalidArgError struct {
@@ -18,7 +16,7 @@ func (ia *InvalidArgError) Error() string {
 }
 
 type EventNotFoundError struct {
-	EventID event.ID
+	EventID string
 }
 
 func (enf *EventNotFoundError) Error() string {

@@ -4,15 +4,12 @@ import (
 	"time"
 )
 
-type ID string
-type UserID string
-
 type Event struct {
-	ID           ID
-	UserID       UserID
+	ID           string
+	UserID       string
 	Title        string
 	Desc         string
 	Start        time.Time
 	End          time.Time
-	NotifyBefore *time.Duration
+	NotifyBefore time.Duration
 }

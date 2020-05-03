@@ -18,7 +18,7 @@ func TestCreateEvent(t *testing.T) {
 	uc := New(repo)
 
 	e := &event.Event{
-		UserID: event.UserID("1"),
+		UserID: "1",
 		Title:  "Breakfast",
 		Start:  helper.NewTime(2020, 2, 29, 8, 30),
 		End:    helper.NewTime(2020, 2, 29, 8, 45),
@@ -48,7 +48,7 @@ func TestCreateEvent(t *testing.T) {
 	startBeforeEnd.Start, startBeforeEnd.End = startBeforeEnd.End, startBeforeEnd.Start
 
 	repo.FindCrossingFn = func(
-		ctx context.Context, userID event.UserID, start, end time.Time,
+		ctx context.Context, userID string, start, end time.Time,
 	) ([]*event.Event, error) {
 		return []*event.Event{e}, nil
 	}

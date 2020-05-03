@@ -2,6 +2,7 @@ package localcache
 
 import (
 	"context"
+	"strconv"
 	"sync"
 	"time"
 
@@ -21,13 +22,13 @@ func (tm *TxMock) Rollback() error {
 }
 
 type LocalCache struct {
-	events map[event.ID]*event.Event
+	events map[string]*event.Event
 	mu     *sync.Mutex
 }
 
 func New() *LocalCache {
 	return &LocalCache{
-		events: make(map[event.ID]*event.Event),
+		events: make(map[string]*event.Event),
 		mu:     new(sync.Mutex),
 	}
 }
@@ -41,12 +42,14 @@ func (lc *LocalCache) Create(ctx context.Context, e *event.Event) error {
 	defer lc.mu.Unlock()
 
 	ecopy := *e
+	ecopy.ID = strconv.Itoa(len(lc.events) + 1)
 	lc.events[ecopy.ID] = &ecopy
+	e.ID = ecopy.ID
 
 	return nil
 }
 
-func (lc *LocalCache) GetByID(ctx context.Context, id event.ID) (*event.Event, error) {
+func (lc *LocalCache) GetByID(ctx context.Context, userID, id string) (*event.Event, error) {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
@@ -88,7 +91,7 @@ func (lc *LocalCache) Update(ctx context.Context, e *event.Event) error {
 	return nil
 }
 
-func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
+func (lc *LocalCache) Delete(ctx context.Context, userID, id string) error {
 	lc.mu.Lock()
 	defer lc.mu.Unlock()
 
@@ -103,7 +106,7 @@ func (lc *LocalCache) Delete(ctx context.Context, id event.ID) error {
 
 func (lc *LocalCache) FindByDate(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	date time.Time,
 ) ([]*event.Event, error) {
 	lc.mu.Lock()
@@ -128,7 +131,7 @@ func (lc *LocalCache) FindByDate(
 
 func (lc *LocalCache) FindInside(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	start time.Time,
 	d time.Duration,
 ) ([]*event.Event, error) {
@@ -156,7 +159,7 @@ func (lc *LocalCache) FindInside(
 
 func (lc *LocalCache) FindCrossing(
 	ctx context.Context,
-	userID event.UserID,
+	userID string,
 	start,
 	end time.Time,
 ) ([]*event.Event, error) {
