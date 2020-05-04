@@ -24,11 +24,11 @@ type CoreServer struct {
 	cevent.EventServiceServer
 	euc    event.UseCase
 	server *grpc.Server
-	cfg    *config.Config
+	cfg    *config.Server
 	logger *zap.Logger
 }
 
-func NewCoreServer(euc event.UseCase, cfg *config.Config, logger *zap.Logger) *CoreServer {
+func NewCoreServer(euc event.UseCase, cfg *config.Server, logger *zap.Logger) *CoreServer {
 	return &CoreServer{
 		euc:    euc,
 		cfg:    cfg,
@@ -37,13 +37,14 @@ func NewCoreServer(euc event.UseCase, cfg *config.Config, logger *zap.Logger) *C
 }
 
 func (cs *CoreServer) Run() error {
-	l, err := net.Listen("tcp", "127.0.0.1:9000")
+	addr := fmt.Sprintf("%s:%d", cs.cfg.IP, cs.cfg.Port)
+
+	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
 
-	// TODO move to config
-	fmt.Printf("core server listens on %v:%v\n", "127.0.0.1", "9000")
+	fmt.Printf("core server listens on %s\n", addr)
 
 	authInterCeptor := func(
 		ctx context.Context,

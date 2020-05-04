@@ -13,11 +13,11 @@ import (
 
 type InfoServer struct {
 	server *http.Server
-	cfg    *config.Config
+	cfg    *config.Info
 	logger *zap.Logger
 }
 
-func NewInfoServer(cfg *config.Config, logger *zap.Logger) *InfoServer {
+func NewInfoServer(cfg *config.Info, logger *zap.Logger) *InfoServer {
 	return &InfoServer{
 		cfg:    cfg,
 		logger: logger,
@@ -25,10 +25,6 @@ func NewInfoServer(cfg *config.Config, logger *zap.Logger) *InfoServer {
 }
 
 func (is *InfoServer) Run() error {
-	hello := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, I am calendar!")
-	}
-
 	ver := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(
 			w,
@@ -55,14 +51,14 @@ func (is *InfoServer) Run() error {
 
 	router := http.NewServeMux()
 	// Register your routes
-	router.HandleFunc("/hello", logging(hello))
 	router.HandleFunc("/version", logging(ver))
 
-	fmt.Printf("info server listens on %v:%v\n", is.cfg.Server.IP, is.cfg.Server.Port)
-	fmt.Printf("info server logs to %v\n", is.cfg.Log.File)
+	addr := fmt.Sprintf("%s:%d", is.cfg.IP, is.cfg.Port)
+
+	fmt.Printf("info server listens on %s\n", addr)
 
 	is.server = &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", is.cfg.Server.IP, is.cfg.Server.Port),
+		Addr:         addr,
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,

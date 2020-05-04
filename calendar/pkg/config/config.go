@@ -1,5 +1,10 @@
 package config
 
+type Info struct {
+	IP   string
+	Port int
+}
+
 type Server struct {
 	IP   string
 	Port int
@@ -11,6 +16,7 @@ type Log struct {
 }
 
 type Config struct {
-	Server Server
+	Info   Info
 	Log    Log
+	Server Server
 }

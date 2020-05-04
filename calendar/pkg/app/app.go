@@ -92,7 +92,7 @@ func makeLogger(cfg *config.Config) (*zap.Logger, error) {
 }
 
 func (a *App) Run() {
-	is := server.NewInfoServer(a.cfg, a.logger)
+	is := server.NewInfoServer(&a.cfg.Info, a.logger)
 
 	// Run info server
 	go func() {
@@ -106,7 +106,7 @@ func (a *App) Run() {
 		}
 	}()
 
-	cs := server.NewCoreServer(a.euc, a.cfg, a.logger)
+	cs := server.NewCoreServer(a.euc, &a.cfg.Server, a.logger)
 
 	// Run core server
 	go func() {
