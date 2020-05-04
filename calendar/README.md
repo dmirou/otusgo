@@ -10,10 +10,14 @@ make
 ```
 
 ### Other make commands
-
+ 
 * `bootstrap` - download golangci-lint, if it is not exists
+* `build` - build the executable 
+* `contract` - generate grpc models via protobuf
 * `lint` - run golangci linter
+* `integration-test` - run service and integration tests
 * `test` - run all tests
+* `run` - run service
 * `vendor` - actualize and update dependencies
 
 ## ДЗ 11 GRPC сервис
