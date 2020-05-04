@@ -3,7 +3,7 @@ APP = calendar
 BIN = calendar
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
-RELEASE ?= v0.10
+RELEASE ?= v0.11
 PROTOC_IMAGE ?= openprovider/protoc:v0.1.0
 
 PWD = $(shell pwd)
