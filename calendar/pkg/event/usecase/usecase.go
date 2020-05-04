@@ -43,7 +43,7 @@ func (uc *UseCase) CreateEvent(ctx context.Context, e *event.Event) error {
 func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 	if e == nil {
 		return &errors.InvalidArgError{
-			Name:   "e",
+			Name:   "event",
 			Method: "CreateEvent",
 			Desc:   "event should be not nil",
 		}
@@ -51,7 +51,7 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 
 	if e.UserID == "" {
 		return &errors.InvalidArgError{
-			Name:   "e",
+			Name:   "user ID",
 			Method: "CreateEvent",
 			Desc:   "event userID should be not empty",
 		}
@@ -59,23 +59,23 @@ func (uc *UseCase) validateEvent(ctx context.Context, e *event.Event) error {
 
 	if e.Title == "" {
 		return &errors.InvalidArgError{
-			Name:   "e",
+			Name:   "title",
 			Method: "CreateEvent",
 			Desc:   "event title should be not empty",
 		}
 	}
 
-	if e.Start.After(e.End) {
+	if e.Start.After(e.End) || e.End.Sub(e.Start) < 15*time.Minute {
 		return &errors.InvalidArgError{
-			Name:   "e",
+			Name:   "end date",
 			Method: "CreateEvent",
-			Desc:   "event end date should be greater than start date",
+			Desc:   "event end date should be greater than start date more than 15 minutes",
 		}
 	}
 
 	if !helper.HasDate(e.Start, e.End) {
 		return &errors.InvalidArgError{
-			Name:   "e",
+			Name:   "end date",
 			Method: "CreateEvent",
 			Desc:   "event end date should have the same date as event start date",
 		}

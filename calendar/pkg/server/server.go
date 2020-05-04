@@ -2,17 +2,20 @@ package server
 
 import (
 	"context"
+	goerrors "errors"
 	"fmt"
 	"net"
 
 	"github.com/dmirou/otusgo/calendar/pkg/config"
 	cevent "github.com/dmirou/otusgo/calendar/pkg/contracts/event"
 	"github.com/dmirou/otusgo/calendar/pkg/contracts/request"
+	errors "github.com/dmirou/otusgo/calendar/pkg/error"
 	"github.com/dmirou/otusgo/calendar/pkg/event"
 	"github.com/dmirou/otusgo/calendar/pkg/helper"
 	"github.com/golang/protobuf/ptypes/empty"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"go.uber.org/zap"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -114,13 +117,47 @@ func (cs *CoreServer) CreateEvent(ctx context.Context, e *cevent.Event) (*cevent
 	}
 
 	err = cs.euc.CreateEvent(ctx, ev)
-	if err != nil {
+
+	var (
+		arg  *errors.InvalidArgError
+		busy *errors.DateBusyError
+	)
+
+	switch {
+	case err != nil && goerrors.As(err, &arg):
+		return nil, cs.invalidArg(arg.Name, arg.Desc)
+	case err != nil && goerrors.As(err, &busy):
+		return nil, cs.invalidArg("start date", busy.Error())
+	case err != nil:
 		return nil, err
+	default:
 	}
 
 	e.Id = ev.ID
 
 	return e, nil
+}
+
+// invalidArg returns an error with InvalidArgument code
+// and the field in the error details
+func (cs *CoreServer) invalidArg(field, desc string) error {
+	st := status.New(codes.InvalidArgument, "invalid "+field)
+	v := &errdetails.BadRequest_FieldViolation{
+		Field:       field,
+		Description: desc,
+	}
+	br := &errdetails.BadRequest{}
+	br.FieldViolations = append(br.FieldViolations, v)
+
+	st, err := st.WithDetails(br)
+	if err != nil {
+		// If this errored, it will always error
+		// here, so better panic so we can figure
+		// out why than have this silently passing.
+		panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+	}
+
+	return st.Err()
 }
 
 func (cs *CoreServer) GetEventByID(ctx context.Context, req *request.ByID) (*cevent.Event, error) {
@@ -130,8 +167,15 @@ func (cs *CoreServer) GetEventByID(ctx context.Context, req *request.ByID) (*cev
 	}
 
 	ev, err := cs.euc.GetEventByID(ctx, userID, req.Id)
-	if err != nil {
+
+	var notFound *errors.EventNotFoundError
+
+	switch {
+	case err != nil && goerrors.As(err, &notFound):
+		return nil, status.Errorf(codes.NotFound, "event not found")
+	case err != nil:
 		return nil, err
+	default:
 	}
 
 	return helper.EventToProtobuf(ev), nil
@@ -197,7 +241,7 @@ func (cs *CoreServer) ListEventsPerDate(ctx context.Context, req *request.ByDate
 		resp.Events[idx] = helper.EventToProtobuf(e)
 	}
 
-	return &cevent.ListEventsResponse{}, nil
+	return resp, nil
 }
 
 func (cs *CoreServer) ListEventsPerWeek(ctx context.Context, req *request.ByDate) (
@@ -225,7 +269,7 @@ func (cs *CoreServer) ListEventsPerWeek(ctx context.Context, req *request.ByDate
 		resp.Events[idx] = helper.EventToProtobuf(e)
 	}
 
-	return &cevent.ListEventsResponse{}, nil
+	return resp, nil
 }
 
 func (cs *CoreServer) ListEventsPerMonth(ctx context.Context, req *request.ByDate) (
@@ -253,7 +297,7 @@ func (cs *CoreServer) ListEventsPerMonth(ctx context.Context, req *request.ByDat
 		resp.Events[idx] = helper.EventToProtobuf(e)
 	}
 
-	return &cevent.ListEventsResponse{}, nil
+	return resp, nil
 }
 
 func (cs *CoreServer) Shutdown() {

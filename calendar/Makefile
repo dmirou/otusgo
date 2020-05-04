@@ -31,6 +31,8 @@ GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
 PROTOC="docker run --rm dmirou/protoc:0.1.1"
 
+CORE_SERVER_ADDR?="127.0.0.1:9000"
+
 all: build
 
 bootstrap:
@@ -68,6 +70,26 @@ build: contracts vendor lint test
 run: build
 	@echo "+ $@"
 	@bin/$(BIN) --config ./config/default.config
+
+run-bg: build
+	@echo "+ $@"
+	@bin/$(BIN) --config ./config/default.config > /dev/null 2>&1 &
+
+sleep:
+	@echo "+ $@"
+	@sleep 3
+
+integration-test: run-bg sleep integration-test-only stop-service
+	@echo "+ $@"
+
+integration-test-only:
+	@echo "+ $@"
+	@CORE_SERVER_ADDR="$(CORE_SERVER_ADDR)" go test -tags=integration -v -race -cover -bench=. -benchmem ./integration/...
+
+stop-service:
+	@echo "+ $@"
+	@killall -9 $(BIN)
+	@sleep 1
 
 .PHONY: all \
 		bootstrap \

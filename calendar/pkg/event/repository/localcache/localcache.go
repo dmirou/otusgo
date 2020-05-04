@@ -54,7 +54,7 @@ func (lc *LocalCache) GetByID(ctx context.Context, userID, id string) (*event.Ev
 	defer lc.mu.Unlock()
 
 	e, ok := lc.events[id]
-	if !ok {
+	if !ok || e.UserID != userID {
 		return nil, &errors.EventNotFoundError{EventID: id}
 	}
 
@@ -172,7 +172,10 @@ func (lc *LocalCache) FindCrossing(
 			continue
 		}
 
-		if helper.TimeInside(e.Start, start, end) || helper.TimeInside(e.End, start, end) {
+		if e.Start == start ||
+			e.End == end ||
+			helper.TimeInside(e.Start, start, end) ||
+			helper.TimeInside(e.End, start, end) {
 			ecopy := *e
 			events = append(events, &ecopy)
 		}
