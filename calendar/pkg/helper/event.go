@@ -15,7 +15,7 @@ func EventFromProtobuf(e *cevent.Event) (*event.Event, error) {
 	re.Desc = e.Desc
 
 	if e.Start != nil {
-		start, err := ProtobufToTime(*e.Start)
+		start, err := ProtobufToTime(e.Start)
 		if err != nil {
 			return nil, err
 		}
@@ -24,7 +24,7 @@ func EventFromProtobuf(e *cevent.Event) (*event.Event, error) {
 	}
 
 	if e.End != nil {
-		end, err := ProtobufToTime(*e.End)
+		end, err := ProtobufToTime(e.End)
 		if err != nil {
 			return nil, err
 		}
@@ -33,7 +33,7 @@ func EventFromProtobuf(e *cevent.Event) (*event.Event, error) {
 	}
 
 	if e.NotifyBefore != nil {
-		nb, err := ProtobufToDuration(*e.NotifyBefore)
+		nb, err := ProtobufToDuration(e.NotifyBefore)
 		if err != nil {
 			return nil, err
 		}

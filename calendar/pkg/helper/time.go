@@ -53,13 +53,13 @@ func DurationToProtobuf(d time.Duration) *duration.Duration {
 }
 
 // ProtobufToTime converts protobuf timestamp to time
-func ProtobufToTime(t timestamp.Timestamp) (time.Time, error) {
-	return ptypes.Timestamp(&t)
+func ProtobufToTime(t *timestamp.Timestamp) (time.Time, error) {
+	return ptypes.Timestamp(t)
 }
 
 // ProtobufToDuration converts protobuf duration to duration
-func ProtobufToDuration(d duration.Duration) (time.Duration, error) {
-	return ptypes.Duration(&d)
+func ProtobufToDuration(d *duration.Duration) (time.Duration, error) {
+	return ptypes.Duration(d)
 }
 
 // HasDate checks if t has specified year, month and day from date
