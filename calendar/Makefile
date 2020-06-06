@@ -77,7 +77,7 @@ sleep:
 	@echo "+ $@"
 	@sleep 3
 
-integration-test: run-bg sleep integration-test-only stop-service
+integration-test: stop-service run-bg sleep integration-test-only stop-service
 	@echo "+ $@"
 
 integration-test-only:
