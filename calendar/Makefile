@@ -4,7 +4,7 @@ BIN = calendar
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.11
-PROTOC_IMAGE ?= openprovider/protoc:v0.1.0
+PROTOC_IMAGE ?= dmirou/protoc:0.1.1
 
 PWD = $(shell pwd)
 PROTOC_RUN = docker run --rm -v $(PWD):/contracts -w /contracts \
