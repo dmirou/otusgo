@@ -3,6 +3,7 @@
 package integration
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -57,4 +58,9 @@ func find(slice []string, val string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+// exporter function to compare all unexported fields
+func exportAll(reflect.Type) bool {
+	return true
 }
