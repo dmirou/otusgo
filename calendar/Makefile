@@ -29,8 +29,6 @@ LDFLAGS = "-s -w \
 
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
-PROTOC="docker run --rm dmirou/protoc:0.1.1"
-
 CORE_SERVER_ADDR?="127.0.0.1:9000"
 
 all: build
