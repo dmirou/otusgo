@@ -13,6 +13,8 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -198,7 +200,9 @@ func init() {
 	proto.RegisterType((*ListEventsResponse)(nil), "event.ListEventsResponse")
 }
 
-func init() { proto.RegisterFile("event/event.proto", fileDescriptor_510ac585eaa75cc0) }
+func init() {
+	proto.RegisterFile("event/event.proto", fileDescriptor_510ac585eaa75cc0)
+}
 
 var fileDescriptor_510ac585eaa75cc0 = []byte{
 	// 484 bytes of a gzipped FileDescriptorProto
@@ -237,11 +241,11 @@ var fileDescriptor_510ac585eaa75cc0 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // EventServiceClient is the client API for EventService service.
 //
@@ -257,10 +261,10 @@ type EventServiceClient interface {
 }
 
 type eventServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewEventServiceClient(cc *grpc.ClientConn) EventServiceClient {
+func NewEventServiceClient(cc grpc.ClientConnInterface) EventServiceClient {
 	return &eventServiceClient{cc}
 }
 
@@ -336,6 +340,32 @@ type EventServiceServer interface {
 	ListEventsPerDate(context.Context, *request.ByDate) (*ListEventsResponse, error)
 	ListEventsPerWeek(context.Context, *request.ByDate) (*ListEventsResponse, error)
 	ListEventsPerMonth(context.Context, *request.ByDate) (*ListEventsResponse, error)
+}
+
+// UnimplementedEventServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedEventServiceServer struct {
+}
+
+func (*UnimplementedEventServiceServer) CreateEvent(ctx context.Context, req *Event) (*Event, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
+}
+func (*UnimplementedEventServiceServer) GetEventByID(ctx context.Context, req *request.ByID) (*Event, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventByID not implemented")
+}
+func (*UnimplementedEventServiceServer) UpdateEvent(ctx context.Context, req *Event) (*Event, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEvent not implemented")
+}
+func (*UnimplementedEventServiceServer) DeleteEvent(ctx context.Context, req *request.ByID) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
+}
+func (*UnimplementedEventServiceServer) ListEventsPerDate(ctx context.Context, req *request.ByDate) (*ListEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEventsPerDate not implemented")
+}
+func (*UnimplementedEventServiceServer) ListEventsPerWeek(ctx context.Context, req *request.ByDate) (*ListEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEventsPerWeek not implemented")
+}
+func (*UnimplementedEventServiceServer) ListEventsPerMonth(ctx context.Context, req *request.ByDate) (*ListEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListEventsPerMonth not implemented")
 }
 
 func RegisterEventServiceServer(s *grpc.Server, srv EventServiceServer) {
