@@ -1,17 +1,19 @@
 package app
 
-import "github.com/dmirou/otusgo/lessons/07interfaces/logger/pkg/logger"
-
-type App struct {
-	logger *logger.Logger
+type Logger interface {
+	Log(msg string) error
 }
 
-func NewApp(l *logger.Logger) *App {
+type App struct {
+	logger Logger
+}
+
+func NewApp(l Logger) *App {
 	return &App{
 		logger: l,
 	}
 }
 
 func (a *App) Run() {
-	a.logger.Write("App started")
+	a.logger.Log("App started")
 }

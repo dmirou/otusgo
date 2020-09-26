@@ -14,7 +14,7 @@ func NewLogger(level int, wr io.Writer) *Logger {
 	}
 }
 
-func (l *Logger) Write(msg string) error {
+func (l *Logger) Log(msg string) error {
 	_, err := l.wr.Write([]byte(msg))
 
 	return err
