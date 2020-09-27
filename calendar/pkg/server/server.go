@@ -224,7 +224,7 @@ func (cs *CoreServer) ListEventsPerDate(ctx context.Context, req *request.ByDate
 		return nil, status.Errorf(codes.Unauthenticated, "can not get user id from request")
 	}
 
-	t, err := helper.ProtobufToTime(*req.Date)
+	t, err := helper.ProtobufToTime(req.Date)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "can not parse date")
 	}
@@ -252,7 +252,7 @@ func (cs *CoreServer) ListEventsPerWeek(ctx context.Context, req *request.ByDate
 		return nil, status.Errorf(codes.Unauthenticated, "can not get user id from request")
 	}
 
-	t, err := helper.ProtobufToTime(*req.Date)
+	t, err := helper.ProtobufToTime(req.Date)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "can not parse date")
 	}
@@ -280,7 +280,7 @@ func (cs *CoreServer) ListEventsPerMonth(ctx context.Context, req *request.ByDat
 		return nil, status.Errorf(codes.Unauthenticated, "can not get user id from request")
 	}
 
-	t, err := helper.ProtobufToTime(*req.Date)
+	t, err := helper.ProtobufToTime(req.Date)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "can not parse date")
 	}

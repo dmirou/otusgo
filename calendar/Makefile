@@ -4,7 +4,7 @@ BIN = calendar
 
 # Use the v0.0.0 tag for testing, it shouldn't clobber any release builds
 RELEASE ?= v0.11
-PROTOC_IMAGE ?= openprovider/protoc:v0.1.0
+PROTOC_IMAGE ?= dmirou/protoc:0.1.1
 
 PWD = $(shell pwd)
 PROTOC_RUN = docker run --rm -v $(PWD):/contracts -w /contracts \
@@ -28,8 +28,6 @@ LDFLAGS = "-s -w \
 	-X $(PROJECT)/pkg/version.BRANCH=$(REPO_BRANCH)"
 
 GO_PACKAGES=$(shell go list $(PROJECT)/...)
-
-PROTOC="docker run --rm dmirou/protoc:0.1.1"
 
 CORE_SERVER_ADDR?="127.0.0.1:9000"
 
@@ -79,7 +77,7 @@ sleep:
 	@echo "+ $@"
 	@sleep 3
 
-integration-test: run-bg sleep integration-test-only stop-service
+integration-test: stop-service run-bg sleep integration-test-only stop-service
 	@echo "+ $@"
 
 integration-test-only:

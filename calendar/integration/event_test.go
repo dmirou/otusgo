@@ -95,7 +95,7 @@ func TestCreateEvent(t *testing.T) {
 		t.Fatalf("unexpected error in GetEventByID: %v", err)
 	}
 
-	diff := cmp.Diff(eupd, e2)
+	diff := cmp.Diff(eupd, e2, cmp.Exporter(exportAll))
 	if diff != "" {
 		t.Fatalf("unexpected event in GetEventByID: %v", diff)
 	}
