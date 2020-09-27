@@ -205,7 +205,7 @@ func TestRemoveFromAnotherList(t *testing.T) {
 
 	first.Remove(second.Front())
 
-	if 5 != first.Len() {
+	if first.Len() != 5 {
 		t.Errorf("expected length: %d, got: %d", 5, first.Len())
 	}
 }
