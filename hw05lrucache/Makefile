@@ -10,7 +10,7 @@ vendor: bootstrap
 
 bootstrap:
 ifndef HAS_LINT
-	GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	GO111MODULE=off go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.20.0
 endif
 
 test:
