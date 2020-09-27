@@ -13,5 +13,6 @@ make
 
 * `bootstrap` - download golangci-lint, if it is not exists
 * `lint` - run golangci linter
+* `fmt` - format Go packages with go fmt
 * `test` - run all tests
 * `vendor` - actualize and update dependencies
