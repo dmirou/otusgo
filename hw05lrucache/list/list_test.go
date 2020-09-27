@@ -153,10 +153,7 @@ func TestRemove(t *testing.T) {
 			current = current.Next()
 		}
 
-		err := list.Remove(toRemove)
-		if err != nil {
-			t.Errorf("unexpected error in Remove: %v", err)
-		}
+		list.Remove(toRemove)
 
 		var length = len(td.Result)
 		if list.Len() != length {
@@ -206,9 +203,10 @@ func TestRemoveFromAnotherList(t *testing.T) {
 		second.PushBack(value)
 	}
 
-	err := first.Remove(second.Front())
-	if err == nil {
-		t.Error("item removed from not its own list")
+	first.Remove(second.Front())
+
+	if 5 != first.Len() {
+		t.Errorf("expected length: %d, got: %d", 5, first.Len())
 	}
 }
 
@@ -222,9 +220,7 @@ func TestMoveToFront(t *testing.T) {
 	}
 
 	first := list.Front()
-	if err := list.MoveToFront(first); err != nil {
-		t.Errorf("unexpected error in MoveToFront: %v", err)
-	}
+	list.MoveToFront(first)
 
 	if first != list.Front() {
 		t.Errorf("expected first item: %v, got: %v", first, list.Front())
@@ -235,9 +231,7 @@ func TestMoveToFront(t *testing.T) {
 	}
 
 	eight := list.Back()
-	if err := list.MoveToFront(eight); err != nil {
-		t.Errorf("unexpected error in MoveToFront: %v", err)
-	}
+	list.MoveToFront(eight)
 
 	expected := []int{8, 3, 4, 1, 2}
 	cur := list.Front()
@@ -255,9 +249,7 @@ func TestMoveToFront(t *testing.T) {
 	}
 
 	four := list.Front().Next().Next()
-	if err := list.MoveToFront(four); err != nil {
-		t.Errorf("unexpected error in MoveToFront: %v", err)
-	}
+	list.MoveToFront(four)
 
 	expected = []int{4, 8, 3, 1, 2}
 	cur = list.Front()

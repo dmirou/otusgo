@@ -1,9 +1,5 @@
 package list
 
-import (
-	"fmt"
-)
-
 // Item is the item of the doubly linked list.
 type Item struct {
 	value interface{}
@@ -105,9 +101,10 @@ func (l *List) PushBack(value interface{}) *Item {
 }
 
 // Remove removes an item from the list.
-func (l *List) Remove(item *Item) error {
+// If the item doesn't belong to the list, nothing will happen.
+func (l *List) Remove(item *Item) {
 	if item.list != l {
-		return fmt.Errorf("the list doesn't contain the passed item")
+		return
 	}
 
 	if item.Prev() == nil && item.Next() == nil {
@@ -116,7 +113,7 @@ func (l *List) Remove(item *Item) error {
 		l.back = nil
 		l.len = 0
 
-		return nil
+		return
 	}
 
 	item.list = nil
@@ -138,18 +135,17 @@ func (l *List) Remove(item *Item) error {
 	}
 
 	l.len--
-
-	return nil
 }
 
-// Move a list item to the beginning of the list.
-func (l *List) MoveToFront(item *Item) error {
+// Move an item to the beginning of the list.
+// If the item doesn't belong to the list, nothing will happen.
+func (l *List) MoveToFront(item *Item) {
 	if item.list != l {
-		return fmt.Errorf("the list doesn't contain the passed item")
+		return
 	}
 
 	if item == l.front {
-		return nil
+		return
 	}
 
 	item.prev.next = item.next
@@ -167,6 +163,4 @@ func (l *List) MoveToFront(item *Item) error {
 	item.prev = nil
 	item.next = l.front
 	l.front = item
-
-	return nil
 }
