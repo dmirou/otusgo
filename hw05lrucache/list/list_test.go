@@ -211,6 +211,7 @@ func TestRemoveFromAnotherList(t *testing.T) {
 }
 
 // TestMoveToFront checks that a list item is correctly moved to the front.
+// nolint: funlen
 func TestMoveToFront(t *testing.T) {
 	list := NewList()
 	values := []int{3, 4, 1, 2, 8}
@@ -244,6 +245,20 @@ func TestMoveToFront(t *testing.T) {
 		cur = cur.Next()
 	}
 
+	cur = list.Back()
+
+	for i := len(expected) - 1; i >= 0; i-- {
+		if cur == nil {
+			t.Fatalf("can not find item for value: %v", expected[i])
+		}
+
+		if expected[i] != cur.Value() {
+			t.Errorf("expected value: %v, got: %v", expected[i], cur.Value())
+		}
+
+		cur = cur.Prev()
+	}
+
 	if len(expected) != list.Len() {
 		t.Errorf("expected length: %v, got: %v", len(expected), list.Len())
 	}
@@ -260,6 +275,20 @@ func TestMoveToFront(t *testing.T) {
 		}
 
 		cur = cur.Next()
+	}
+
+	cur = list.Back()
+
+	for i := len(expected) - 1; i >= 0; i-- {
+		if cur == nil {
+			t.Fatalf("can not find item for value: %v", expected[i])
+		}
+
+		if expected[i] != cur.Value() {
+			t.Errorf("expected value: %v, got: %v", expected[i], cur.Value())
+		}
+
+		cur = cur.Prev()
 	}
 
 	if len(expected) != list.Len() {

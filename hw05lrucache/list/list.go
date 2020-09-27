@@ -162,5 +162,6 @@ func (l *List) MoveToFront(item *Item) {
 
 	item.prev = nil
 	item.next = l.front
+	l.front.prev = item
 	l.front = item
 }
