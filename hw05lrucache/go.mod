@@ -1,3 +1,3 @@
-module github.com/dmirou/otusgo/template
+module github.com/dmirou/otusgo/hw05lrucache
 
 go 1.13
