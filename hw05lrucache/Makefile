@@ -1,6 +1,5 @@
 PROJECT = github.com/dmirou/otusgo/template
 HAS_LINT := $(shell command -v golangci-lint;)
-GO_PACKAGES=$(shell go list $(PROJECT)/...)
 
 all: vendor test lint
 
@@ -15,7 +14,7 @@ endif
 
 test:
 	@echo "+ $@"
-	@go list -f '{{if len .TestGoFiles}}"go test -race -cover {{.Dir}}"{{end}}' $(GO_PACKAGES) | xargs -L 1 sh -c
+	@go test -count=1 -v -race -cover ./...
 
 lint: bootstrap
 	@echo "+ $@"
