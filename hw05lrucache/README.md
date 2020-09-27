@@ -1,6 +1,6 @@
-# Название задания
+# Домашнее задание №4 «LRU-кэш»
 
-Цель:  Описание задания
+[Описание задания](https://github.com/OtusGolang/home_work/tree/master/hw04_lru_cache)
 
 ## Usage
 
